@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#176b3a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Road to Success" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Zambia: Road to Success</title>
+  <style>
+    :root {
+      --green: #176b3a;
+      --green-dark: #0d4525;
+      --green-soft: #e9f5ee;
+      --orange: #ef7d22;
+      --red: #c43b3b;
+      --ink: #17221b;
+      --muted: #68756d;
+      --paper: #fffdf7;
+      --card: #ffffff;
+      --line: #d9e1db;
+      --shadow: 0 12px 30px rgba(18, 54, 34, 0.12);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #edf3ef; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(239, 125, 34, .15), transparent 26rem),
+        radial-gradient(circle at 100% 15%, rgba(23, 107, 58, .16), transparent 30rem),
+        linear-gradient(180deg, #f8fbf8 0%, #edf3ef 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, input { font: inherit; }
+    button { touch-action: manipulation; }
+
+    .app {
+      width: min(760px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: max(14px, env(safe-area-inset-top)) 14px max(28px, env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .flag-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      position: relative;
+      overflow: hidden;
+      background: var(--green);
+      box-shadow: 0 6px 16px rgba(23, 107, 58, .22);
+      flex: 0 0 auto;
+    }
+    .flag-mark::before {
+      content: "";
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+      width: 17px;
+      height: 25px;
+      background: linear-gradient(90deg, var(--red) 0 33%, #111 33% 66%, var(--orange) 66%);
+    }
+    .flag-mark::after {
+      content: "◆";
+      position: absolute;
+      right: 6px;
+      top: 3px;
+      color: var(--orange);
+      font-size: 12px;
+      transform: rotate(45deg);
+    }
+
+    .brand-title {
+      font-weight: 900;
+      letter-spacing: -.025em;
+      line-height: 1.05;
+      font-size: clamp(17px, 4vw, 22px);
+    }
+    .brand-sub { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+    .icon-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.85);
+      color: var(--ink);
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,.04);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: rise .26s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(7px); } }
+
+    .hero {
+      border-radius: 28px;
+      padding: 26px 21px;
+      color: #fff;
+      background:
+        linear-gradient(135deg, rgba(4, 45, 22, .96), rgba(23, 107, 58, .92)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 8px, transparent 8px 16px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::after {
+      content: "LIFE OPTIONS";
+      position: absolute;
+      right: -10px;
+      bottom: -12px;
+      font-size: 38px;
+      font-weight: 950;
+      color: rgba(255,255,255,.07);
+      transform: rotate(-6deg);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    .hero h1 { font-size: clamp(34px, 9vw, 58px); line-height: .96; margin: 20px 0 14px; letter-spacing: -.055em; }
+    .hero p { font-size: 16px; line-height: 1.55; max-width: 570px; color: rgba(255,255,255,.88); }
+
+    .button-stack { display: grid; gap: 10px; margin-top: 20px; }
+    .primary, .secondary, .danger, .choice-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      min-height: 54px;
+      padding: 13px 16px;
+      cursor: pointer;
+      font-weight: 850;
+    }
+    .primary { background: var(--orange); color: #18120d; box-shadow: 0 8px 20px rgba(239,125,34,.27); }
+    .secondary { background: #fff; color: var(--green-dark); border: 1px solid var(--line); }
+    .danger { background: #fff2f2; color: #8a2424; border: 1px solid #efc8c8; }
+    .primary:active, .secondary:active, .choice-btn:active, .icon-btn:active { transform: translateY(1px); }
+    button:disabled { opacity: .48; cursor: not-allowed; box-shadow: none; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0; }
+    .feature {
+      background: rgba(255,255,255,.8);
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      padding: 14px;
+      min-height: 105px;
+    }
+    .feature strong { display: block; font-size: 14px; margin-bottom: 6px; }
+    .feature span { color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .feature-icon { font-size: 23px; margin-bottom: 8px; }
+
+    .panel {
+      background: rgba(255,255,255,.93);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(18,54,34,.06);
+      margin-bottom: 12px;
+    }
+
+    label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 7px; }
+    input[type="text"] {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 0 14px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgba(23,107,58,.1); }
+
+    .background-options { display: grid; gap: 10px; margin-top: 14px; }
+    .background-option {
+      position: relative;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+    }
+    .background-option.selected { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,58,.1); background: var(--green-soft); }
+    .background-option strong { display: block; margin-bottom: 4px; }
+    .background-option small { display: block; color: var(--muted); line-height: 1.4; }
+    .bonus { margin-top: 8px; font-size: 12px; font-weight: 800; color: var(--green-dark); }
+
+    .status-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+    .status-chip {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 9px 7px;
+      text-align: center;
+      min-width: 0;
+    }
+    .status-chip span { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: .03em; }
+    .status-chip strong { display: block; margin-top: 3px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .progress-wrap { margin-bottom: 11px; }
+    .progress-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+    .progress-top span:last-child { color: var(--muted); }
+    .progress-track { height: 10px; background: #dfe7e1; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--orange)); width: 0; border-radius: inherit; transition: width .35s ease; }
+
+    .story-card {
+      background: var(--paper);
+      border: 1px solid #e7e0cf;
+      border-radius: 23px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .story-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--green) 0 54%, var(--red) 54% 69%, #111 69% 84%, var(--orange) 84%);
+    }
+    .chapter { color: var(--green); font-weight: 900; text-transform: uppercase; letter-spacing: .08em; font-size: 11px; margin: 4px 0 9px; }
+    .story-card h2 { font-size: clamp(25px, 7vw, 34px); letter-spacing: -.035em; line-height: 1.03; margin-bottom: 12px; }
+    .story-text { color: #344138; font-size: 16px; line-height: 1.62; white-space: pre-line; }
+
+    .notice {
+      border-radius: 14px;
+      padding: 11px 12px;
+      font-size: 12px;
+      line-height: 1.45;
+      margin-top: 14px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      border: 1px solid #cbe3d4;
+    }
+    .notice.warning { background: #fff6e8; border-color: #efd8ae; color: #714914; }
+
+    .choices { display: grid; gap: 10px; margin-top: 12px; }
+    .choice-btn {
+      text-align: left;
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: 0 5px 14px rgba(0,0,0,.04);
+      position: relative;
+      padding-right: 42px;
+    }
+    .choice-btn::after { content: "›"; position: absolute; right: 16px; top: 50%; transform: translateY(-53%); font-size: 28px; color: var(--green); }
+    .choice-btn strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .choice-btn small { display: block; color: var(--muted); font-weight: 600; line-height: 1.35; }
+    .choice-btn.good { border-color: #b8d9c3; background: #fbfffc; }
+    .choice-btn.risky { border-color: #efd3ae; background: #fffcf7; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .stat {
+      padding: 11px;
+      background: #f7faf8;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .stat-top { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 850; }
+    .mini-track { height: 6px; border-radius: 99px; background: #dfe6e1; overflow: hidden; margin-top: 7px; }
+    .mini-fill { height: 100%; background: var(--green); border-radius: inherit; }
+    .mini-fill.stress { background: var(--red); }
+
+    .summary-list { display: grid; gap: 8px; }
+    .summary-row { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px dashed var(--line); padding-bottom: 7px; font-size: 13px; }
+    .summary-row:last-child { border: 0; padding-bottom: 0; }
+    .summary-row span { color: var(--muted); }
+    .summary-row strong { text-align: right; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      transform: translate(-50%, 20px);
+      width: min(92vw, 540px);
+      background: #17221b;
+      color: #fff;
+      border-radius: 15px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 0 12px 34px rgba(0,0,0,.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,18,10,.56);
+      z-index: 80;
+      padding: 18px;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      width: min(640px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      animation: rise .2s ease both;
+    }
+    .modal h2 { margin-bottom: 10px; }
+    .modal p, .modal li { color: #445148; line-height: 1.55; }
+    .modal ul { padding-left: 20px; }
+
+    .result-badge {
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      background: var(--green-soft);
+      display: grid;
+      place-items: center;
+      font-size: 35px;
+      margin-bottom: 14px;
+    }
+
+    .local-file-note {
+      margin-top: 14px;
+      padding: 13px 14px;
+      border: 1px solid #d8c89f;
+      border-radius: 14px;
+      background: #fff9e8;
+      color: #5b4a1f;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .local-file-note strong { display: block; margin-bottom: 4px; color: #3f3215; }
+    .footer-note { text-align: center; color: var(--muted); font-size: 11px; margin-top: 15px; line-height: 1.45; }
+    .hidden { display: none !important; }
+
+    @media (min-width: 640px) {
+      .app { padding-left: 22px; padding-right: 22px; }
+      .background-options { grid-template-columns: repeat(2, 1fr); }
+      .choices { grid-template-columns: repeat(2, 1fr); }
+      .choice-btn { min-height: 86px; }
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+      .modal-backdrop { align-items: center; }
+    }
+
+    @media (max-width: 380px) {
+      .status-bar { grid-template-columns: repeat(2, 1fr); }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="flag-mark" aria-hidden="true"></div>
+        <div>
+          <div class="brand-title">Zambia: Road to Success</div>
+          <div class="brand-sub">A choice-based career and business story</div>
+        </div>
+      </div>
+      <button class="icon-btn" id="helpBtn" aria-label="About and help">?</button>
+    </header>
+
+    <section id="homeScreen" class="screen active">
+      <div class="hero">
+        <div class="eyebrow">🇿🇲 Offline mobile prototype</div>
+        <h1>Start with little.<br />Build your future.</h1>
+        <p>You are 18, living in Lusaka and trying to find your way. Work, learn a trade, pursue higher education, build a business, manage a household budget and invest in useful assets. Your choices shape money, skills, reputation, health and future.</p>
+        <div class="button-stack">
+          <button class="primary" id="newGameBtn">Start a New Life</button>
+          <button class="secondary" id="continueBtn">Continue Saved Game</button>
+        </div>
+        <div class="local-file-note" id="iphoneFileNote">
+          <strong>iPhone test version</strong>
+          This complete game is stored in one file. Save it to the Files app and open it from there. If iPhone shows a preview, use the Share button and choose Safari when that option is available.
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature"><div class="feature-icon">📚</div><strong>Education matters</strong><span>Short courses, TEVET training, diplomas and degrees unlock different careers.</span></div>
+        <div class="feature"><div class="feature-icon">🛍️</div><strong>Start small</strong><span>Sell food, clothing, accessories or services, then grow into a registered enterprise.</span></div>
+        <div class="feature"><div class="feature-icon">🤝</div><strong>Relationships open doors</strong><span>Build your network and reputation, but protect your energy and wellbeing.</span></div>
+        <div class="feature"><div class="feature-icon">💰</div><strong>Build real assets</strong><span>Balance cash, debt, savings, transport, verified land and business value.</span></div>
+      </div>
+      <p class="footer-note">Prototype v1.2 · Life choices, realistic hustle risk, creditworthiness, bank loans and scam awareness. All values are fictionalised for gameplay.</p>
+    </section>
+
+    <section id="setupScreen" class="screen">
+      <div class="panel">
+        <div class="chapter">Create your character</div>
+        <h2>Who are you at the start?</h2>
+        <p style="color:var(--muted);line-height:1.5">Your background gives a small advantage, but no path is locked. You can still become a technician, graduate, manager or entrepreneur.</p>
+        <label for="playerName">Your name</label>
+        <input id="playerName" type="text" maxlength="24" placeholder="Enter a name" autocomplete="off" />
+
+        <div class="background-options" id="backgroundOptions"></div>
+        <div class="button-stack">
+          <button class="primary" id="beginBtn" disabled>Begin the Story</button>
+          <button class="secondary" id="backHomeBtn">Back</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen">
+      <div class="status-bar">
+        <div class="status-chip"><span>Age</span><strong id="ageValue">18</strong></div>
+        <div class="status-chip"><span>Cash</span><strong id="cashValue">K0</strong></div>
+        <div class="status-chip"><span>Net worth</span><strong id="worthValue">K0</strong></div>
+        <div class="status-chip"><span>Quarter</span><strong id="quarterValue">Q1</strong></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-top"><span>Life options</span><span id="millionProgressText">0%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="millionProgress"></div></div>
+      </div>
+
+      <article class="story-card">
+        <div class="chapter" id="chapterText">Chapter 1 · Starting Out</div>
+        <h2 id="sceneTitle">A New Morning</h2>
+        <div class="story-text" id="sceneText"></div>
+        <div id="sceneNotice" class="notice hidden"></div>
+      </article>
+
+      <div class="choices" id="choiceList"></div>
+
+      <div class="panel" style="margin-top:12px">
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-top"><span>⚡ Energy</span><strong id="energyValue">75</strong></div><div class="mini-track"><div class="mini-fill" id="energyBar"></div></div></div>
+          <div class="stat"><div class="stat-top"><span>🧠 Skill (total)</span><strong id="skillValue">1</strong></div><div class="mini-track"><div class="mini-fill" id="skillBar"></div></div></div>
+          <div class="stat"><div class="stat-top"><span>🤝 Network</span><strong id="networkValue">1</strong></div><div class="mini-track"><div class="mini-fill" id="networkBar"></div></div></div>
+          <div class="stat"><div class="stat-top"><span>🌡️ Stress</span><strong id="stressValue">10</strong></div><div class="mini-track"><div class="mini-fill stress" id="stressBar"></div></div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="summary-list">
+          <div class="summary-row"><span>Education</span><strong id="educationValue">Grade 12</strong></div>
+          <div class="summary-row"><span>🔧 Practical skill</span><strong id="practicalSkillValue">0.4</strong></div>
+          <div class="summary-row"><span>💼 Business skill</span><strong id="businessSkillValue">0.3</strong></div>
+          <div class="summary-row"><span>📖 Academic skill</span><strong id="academicSkillValue">0.3</strong></div>
+          <div class="summary-row"><span>Job</span><strong id="jobValue">Unemployed</strong></div>
+          <div class="summary-row"><span>Business</span><strong id="businessValue">None</strong></div>
+          <div class="summary-row"><span>Food plan</span><strong id="foodValue">Basic home meals</strong></div>
+          <div class="summary-row"><span>Housing</span><strong id="housingValue">Family home</strong></div>
+          <div class="summary-row"><span>Transport</span><strong id="vehicleValue">Public transport</strong></div>
+          <div class="summary-row"><span>Land</span><strong id="landValue">None</strong></div>
+          <div class="summary-row"><span>Debt</span><strong id="debtValue">K0</strong></div>
+          <div class="summary-row"><span>Unpaid bills</span><strong id="unpaidBillsValue">K0</strong></div>
+          <div class="summary-row"><span>Bank trust</span><strong id="creditValue">0/100</strong></div>
+          <div class="summary-row"><span>Reputation</span><strong id="reputationValue">0</strong></div>
+        </div>
+      </div>
+
+      <div class="button-stack">
+        <button class="secondary" id="saveBtn">Save Game</button>
+        <button class="danger" id="restartBtn">Restart Life</button>
+      </div>
+    </section>
+
+    <section id="endScreen" class="screen">
+      <div class="panel">
+        <div class="result-badge" id="resultIcon">🏆</div>
+        <div class="chapter">Your ending</div>
+        <h2 id="resultTitle">Your Life Path</h2>
+        <p id="resultText" style="line-height:1.6;color:#3f4b43"></p>
+        <div class="summary-list" id="resultSummary"></div>
+        <div class="button-stack">
+          <button class="primary" id="copyResultBtn">Copy Test Result</button>
+          <button class="secondary" id="playAgainBtn">Play Again</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Help improve the game</h3>
+        <p style="color:var(--muted);line-height:1.5;font-size:14px">When you send your result, also say: Which choice was most interesting? What was confusing? Did the money feel fair? Would you play again?</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal">
+      <h2 id="helpTitle">About this prototype</h2>
+      <p><strong>Goal:</strong> Build a life with more choices. Education, useful skills, reliable income, healthy relationships, assets, manageable debt and wellbeing all matter. There is no single millionaire win condition.</p>
+      <p><strong>How time works:</strong> Each choice represents roughly three months. Salary, business and land income are paid automatically each quarter, followed by food, housing, transport and debt costs.</p>
+      <p><strong>Important:</strong> This is a fictional game inspired by Zambian education, work, informal trade, mobile money and entrepreneurship. Values are simplified and should not be treated as official wages, school fees or business forecasts.</p>
+      <ul>
+        <li>Education opens careers and improves your ability to grow a business.</li>
+        <li>Network and reputation unlock opportunities.</li>
+        <li>Food, housing and transport choices change your quarterly costs, energy and stress.</li>
+        <li>Some offers are deliberately too good to be true. Verify jobs, training, land and investments before paying.</li>
+        <li>Vehicles, land, savings and business value can create options, but debt and upkeep can reduce them.</li>
+        <li>Bank loans require enough trust, income and repayment capacity. High-cost informal debt is easier to obtain but much harder to escape.</li>
+        <li>A small hustle is uncertain. Most early attempts bring small or negative results; records, skills, customers and persistence improve the odds.</li>
+        <li>Low energy and high stress can cause setbacks.</li>
+        <li>Your game saves locally on the device when you press Save Game.</li>
+      </ul>
+      <button class="primary" id="closeHelpBtn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const SAVE_KEY = "zambiaRoadToSuccessSave_v1_iphone"; // Kept for save migration from v1.0
+
+    // Local HTML files can have restricted storage in some iPhone viewers.
+    // This wrapper keeps the current session playable even when persistent storage is blocked.
+    const sessionFallbackStorage = {};
+    const gameStorage = {
+      getItem(key) {
+        try { return window.localStorage.getItem(key); }
+        catch (error) { return Object.prototype.hasOwnProperty.call(sessionFallbackStorage, key) ? sessionFallbackStorage[key] : null; }
+      },
+      setItem(key, value) {
+        try { window.localStorage.setItem(key, value); }
+        catch (error) { sessionFallbackStorage[key] = String(value); }
+      },
+      removeItem(key) {
+        try { window.localStorage.removeItem(key); }
+        catch (error) { delete sessionFallbackStorage[key]; }
+      }
+    };
+    const MAX_AGE = 40;
+
+    const backgrounds = [
+      { id: "focused", name: "The Focused Student", text: "You finished Grade 12 with strong study habits and a clear desire to keep learning.", bonus: "+1 Academic skill · Lower education costs", effects: { skillBonus: 1, educationDiscount: 0.15 } },
+      { id: "street", name: "The Street-Smart Starter", text: "You know how to speak with customers, compare prices and spot a small opportunity.", bonus: "+K700 · +1 Business instinct", effects: { cash: 700, businessBonus: 0.08 } },
+      { id: "social", name: "The Natural Networker", text: "You know people across your neighbourhood and are confident asking for advice or introductions.", bonus: "+2 Network · +2 Reputation", effects: { network: 2, reputation: 2 } },
+      { id: "resilient", name: "The Resilient Worker", text: "You are used to helping at home and working through difficult days without giving up.", bonus: "+15 Energy · Slower stress growth", effects: { energy: 15, stressResistance: 0.18 } }
+    ];
+
+    const jobs = [
+      { id: "none", name: "Unemployed", salary: 0, req: () => true },
+      { id: "casual", name: "Casual Worker", salary: 4500, req: s => true },
+      { id: "shop", name: "Shop Assistant", salary: 7000, req: s => totalSkill(s) >= 1 },
+      { id: "sales", name: "Sales Representative", salary: 10500, req: s => s.skills.business >= 2.5 && s.network >= 2 },
+      { id: "office", name: "Office Assistant", salary: 10500, req: s => (s.education.academic >= 1 || s.education.business >= 1) && totalSkill(s) >= 3 },
+      { id: "technician", name: "Skilled Technician", salary: 16500, req: s => s.education.practical >= 2 && s.skills.practical >= 4 },
+      { id: "juniorpro", name: "Junior Professional", salary: 19000, req: s => (s.education.business >= 2 || s.education.academic >= 2) && totalSkill(s) >= 5 },
+      { id: "supervisor", name: "Supervisor", salary: 26000, req: s => totalSkill(s) >= 6 && s.reputation >= 15 && s.network >= 4 },
+      { id: "manager", name: "Manager", salary: 39000, req: s => s.education.business >= 3 && s.skills.business >= 7 && s.reputation >= 25 },
+      { id: "director", name: "Operations Director", salary: 65000, req: s => s.education.business >= 3 && s.skills.business >= 9 && s.reputation >= 50 && s.network >= 8 }
+    ];
+
+    // Three parallel education paths. Each level requires a minimum amount of that
+    // path's own skill (built through matching work, courses and experience) before
+    // you are allowed to enrol — so a variety of routes exist, gated by what you can
+    // already show, not just by cash and rank order.
+    const educationTracks = {
+      practical: {
+        label: "Practical & Trade (TEVET)",
+        levels: [
+          { id: "practical0", name: "Grade 12", rank: 0 },
+          { id: "practical1", name: "Short Skills Course", rank: 1, cost: 2800, turns: 2, gain: 1.5, reqSkill: 0 },
+          { id: "practical2", name: "TEVET Certificate", rank: 2, cost: 9500, turns: 4, gain: 3, reqSkill: 2 },
+          { id: "practical3", name: "TEVET Advanced Diploma", rank: 3, cost: 22000, turns: 5, gain: 3.5, reqSkill: 5 }
+        ]
+      },
+      business: {
+        label: "Business & Trade Management",
+        levels: [
+          { id: "business0", name: "Grade 12", rank: 0 },
+          { id: "business1", name: "Business Foundations Course", rank: 1, cost: 2600, turns: 2, gain: 1.5, reqSkill: 0 },
+          { id: "business2", name: "Business Diploma", rank: 2, cost: 22000, turns: 6, gain: 3.5, reqSkill: 2.5 },
+          { id: "business3", name: "Business Degree", rank: 3, cost: 50000, turns: 10, gain: 5, reqSkill: 5 }
+        ]
+      },
+      academic: {
+        label: "Academic / University",
+        levels: [
+          { id: "academic0", name: "Grade 12", rank: 0 },
+          { id: "academic1", name: "Foundation Bridging Course", rank: 1, cost: 3000, turns: 2, gain: 1.5, reqSkill: 0 },
+          { id: "academic2", name: "University Diploma", rank: 2, cost: 24000, turns: 6, gain: 3.5, reqSkill: 2.5 },
+          { id: "academic3", name: "University Degree", rank: 3, cost: 52000, turns: 10, gain: 5, reqSkill: 5 }
+        ]
+      }
+    };
+
+    const businesses = [
+      { level: 0, name: "None", cost: 0, profit: 0, value: 0, reqSkill: 0, reqRep: 0 },
+      { level: 1, name: "Street Side Hustle", cost: 600, profit: 2800, value: 1400, reqSkill: 1, reqRep: 0 },
+      { level: 2, name: "Market Stall", cost: 7000, profit: 9000, value: 18000, reqSkill: 2.5, reqRep: 4 },
+      { level: 3, name: "Registered Microbusiness", cost: 24000, profit: 23000, value: 70000, reqSkill: 4, reqRep: 10 },
+      { level: 4, name: "Growing Enterprise", cost: 85000, profit: 62000, value: 235000, reqSkill: 5.5, reqRep: 22 },
+      { level: 5, name: "Regional Company", cost: 260000, profit: 155000, value: 720000, reqSkill: 7.5, reqRep: 40 },
+      { level: 6, name: "National Brand", cost: 650000, profit: 340000, value: 1650000, reqSkill: 9, reqRep: 65 }
+    ];
+
+    const foodPlans = [
+      { id: "basic", name: "Basic home meals", cost: 1200, energy: 1, stress: 1, text: "Nshima with simple relish, beans or vegetables, cooked at home. Affordable and filling, but with limited variety." },
+      { id: "balanced", name: "Balanced meal plan", cost: 2400, energy: 5, stress: -1, text: "More varied home meals with vegetables, protein and regular portions. Better recovery at a higher cost." },
+      { id: "comfortable", name: "Convenient & varied meals", cost: 3900, energy: 9, stress: -3, text: "More variety and convenience, including some bought meals. Strong recovery, but lifestyle costs rise quickly." }
+    ];
+
+    const housingPlans = [
+      { id: "family", name: "Family home", cost: 700, stress: 1, network: .15, text: "Lowest cost and family support, but less privacy and more household obligations." },
+      { id: "shared", name: "Shared room", cost: 1900, stress: 0, network: .1, text: "More independence while sharing rent and utilities." },
+      { id: "rental", name: "Small rental", cost: 3800, stress: -3, network: 0, text: "More privacy and focus, but a much larger fixed cost every quarter." }
+    ];
+
+    const vehicles = [
+      { id: "none", name: "Public transport", cost: 0, value: 0, upkeep: 650, businessBonus: 0, network: 0 },
+      { id: "bicycle", name: "Bicycle", cost: 2500, value: 1700, upkeep: 180, businessBonus: .015, network: .05 },
+      { id: "motorbike", name: "Used motorbike", cost: 15000, value: 10500, upkeep: 750, businessBonus: .06, network: .12 },
+      { id: "car", name: "Small used car", cost: 50000, value: 35000, upkeep: 1900, businessBonus: .1, network: .2 }
+    ];
+
+    function currentFoodPlan() { return foodPlans.find(p => p.id === state.foodPlan) || foodPlans[0]; }
+    function currentHousingPlan() { return housingPlans.find(p => p.id === state.housingPlan) || housingPlans[0]; }
+    function currentVehicle() { return vehicles.find(v => v.id === state.vehicle) || vehicles[0]; }
+    function landAssetValue() { return Math.max(0, Math.round(state.landValue || 0)); }
+
+    // Three skill types: Practical (hands-on work & trade), Business (sales, money and
+    // customers) and Academic (study, research and financial judgement). totalSkill()
+    // keeps everything that used to read one generic "skill" working the same way,
+    // since it is simply the sum of however that experience got distributed.
+    function totalSkill(s) { return (s.skills.practical || 0) + (s.skills.business || 0) + (s.skills.academic || 0); }
+    function gainSkill(type, amount) {
+      if (!amount) return;
+      state.skills[type] = clamp((state.skills[type] || 0) + amount, 0, 12);
+    }
+    function nextEducationLevel(track) {
+      const levels = educationTracks[track].levels;
+      const rank = (state.education && state.education[track]) || 0;
+      return levels[rank + 1] || null;
+    }
+    function eligibleNextEducations() {
+      return Object.keys(educationTracks).map(track => {
+        const next = nextEducationLevel(track);
+        if (!next) return null;
+        if ((state.skills[track] || 0) < (next.reqSkill || 0)) return null;
+        return { track, next };
+      }).filter(Boolean);
+    }
+
+    let selectedBackground = null;
+    let state = null;
+    let currentScene = null;
+    let toastTimer = null;
+
+    const $ = id => document.getElementById(id);
+    const screens = ["homeScreen", "setupScreen", "gameScreen", "endScreen"];
+
+    function formatMoney(n) {
+      const sign = n < 0 ? "-" : "";
+      return `${sign}K${Math.abs(Math.round(n)).toLocaleString("en-ZM")}`;
+    }
+
+    function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+    function chance(probability) { return Math.random() < probability; }
+    function pick(items) { return items[Math.floor(Math.random() * items.length)]; }
+
+    function educationRank(s) {
+      const e = s && s.education ? s.education : {};
+      return Math.max(e.practical || 0, e.business || 0, e.academic || 0);
+    }
+    function educationSummaryText(s) {
+      const parts = Object.keys(educationTracks).map(track => {
+        const rank = (s.education && s.education[track]) || 0;
+        if (rank === 0) return null;
+        const level = educationTracks[track].levels.find(l => l.rank === rank);
+        return level ? level.name : null;
+      }).filter(Boolean);
+      return parts.length ? parts.join(" · ") : "Grade 12";
+    }
+    function currentJob() { return jobs.find(j => j.id === state.job) || jobs[0]; }
+    function currentBusiness() { return businesses[state.businessLevel] || businesses[0]; }
+    function netWorth() { return Math.round(state.cash + currentBusiness().value + state.investments + landAssetValue() + currentVehicle().value - state.debt - (state.unpaidBills || 0)); }
+
+    function estimatedQuarterlyIncome() {
+      const jobIncome = currentJob().salary || 0;
+      const businessIncome = state.businessLevel > 0 ? Math.max(0, currentBusiness().profit * 0.55) : 0;
+      return Math.round(jobIncome + businessIncome + (state.landIncome || 0));
+    }
+
+    function estimatedQuarterlyCosts() {
+      return Math.round(currentFoodPlan().cost + currentHousingPlan().cost + currentVehicle().upkeep + (state.debt > 0 ? state.debt * (state.debtRate || .035) : 0));
+    }
+
+    function creditworthiness() {
+      const income = estimatedQuarterlyIncome();
+      const costs = estimatedQuarterlyCosts();
+      const debtBurden = income > 0 ? state.debt / Math.max(income, 1) : (state.debt > 0 ? 8 : 0);
+      let score = 30;
+      if (currentJob().id !== "none") score += 13;
+      if (["supervisor", "manager", "director"].includes(currentJob().id)) score += 7;
+      score += educationRank(state) * 3;
+      score += Math.min(10, state.reputation / 8);
+      score += Math.min(7, state.network / 1.5);
+      if (state.flags.businessRecords) score += 5;
+      if (income > costs) score += 10;
+      if (state.cash >= Math.max(2000, costs * .5)) score += 5;
+      score += state.creditHistory || 0;
+      score -= (state.missedPayments || 0) * 7;
+      score -= Math.min(30, debtBurden * 7);
+      score -= Math.min(12, (state.unpaidBills || 0) / 800);
+      return Math.round(clamp(score, 0, 100));
+    }
+
+    function lifeOptionsScore() {
+      const income = estimatedQuarterlyIncome();
+      const costs = estimatedQuarterlyCosts();
+      const surplus = income - costs;
+      let score = 5;
+      score += totalSkill(state) * 2.1;
+      score += educationRank(state) * 4;
+      score += Math.min(12, state.network * 1.2);
+      score += Math.min(12, state.reputation / 5);
+      score += currentJob().id !== "none" ? 8 : 0;
+      score += state.businessLevel >= 2 ? Math.min(10, state.businessLevel * 2) : 0;
+      score += surplus > 0 ? Math.min(10, surplus / 1800) : Math.max(-10, surplus / 1200);
+      score += Math.min(8, Math.max(0, netWorth()) / 30000);
+      score += Math.min(7, state.energy / 14);
+      score += Math.min(7, (100 - state.stress) / 14);
+      score -= Math.min(18, state.debt / Math.max(6000, income || 6000) * 4);
+      score -= Math.min(15, (state.unpaidBills || 0) / 700);
+      return Math.round(clamp(score, 0, 100));
+    }
+
+    function showScreen(id) {
+      screens.forEach(screenId => $(screenId).classList.toggle("active", screenId === id));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+    }
+
+    function renderBackgrounds() {
+      $("backgroundOptions").innerHTML = backgrounds.map(bg => `
+        <button type="button" class="background-option ${selectedBackground === bg.id ? "selected" : ""}" data-bg="${bg.id}">
+          <strong>${bg.name}</strong>
+          <small>${bg.text}</small>
+          <div class="bonus">${bg.bonus}</div>
+        </button>
+      `).join("");
+      document.querySelectorAll("[data-bg]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedBackground = btn.dataset.bg;
+          renderBackgrounds();
+          validateSetup();
+        });
+      });
+    }
+
+    function validateSetup() {
+      $("beginBtn").disabled = !(selectedBackground && $("playerName").value.trim().length >= 2);
+    }
+
+    function createInitialState(name, bgId) {
+      const bg = backgrounds.find(b => b.id === bgId);
+      const s = {
+        version: 3,
+        name,
+        background: bgId,
+        age: 18,
+        quarter: 1,
+        turn: 0,
+        cash: 1500,
+        debt: 0,
+        debtRate: 0.035,
+        creditHistory: 0,
+        missedPayments: 0,
+        unpaidBills: 0,
+        investments: 0,
+        energy: 75,
+        stress: 10,
+        skills: { practical: 0.4, business: 0.3, academic: 0.3 },
+        network: 1,
+        reputation: 0,
+        education: { practical: 0, business: 0, academic: 0 },
+        studying: null,
+        job: "none",
+        businessLevel: 0,
+        businessType: null,
+        businessBonus: 0,
+        educationDiscount: 0,
+        stressResistance: 0,
+        foodPlan: "basic",
+        housingPlan: "family",
+        vehicle: "none",
+        landPlots: 0,
+        landValue: 0,
+        landIncome: 0,
+        recentEvents: [],
+        flags: {},
+        history: [],
+        lastFinance: null,
+        totalIncome: 0,
+        totalEducationSpent: 0,
+        totalBusinessSpent: 0,
+        hustleBreakthroughs: 0,
+        hustleLosses: 0,
+        ending: null
+      };
+      if (bg?.effects) {
+        Object.entries(bg.effects).forEach(([key, value]) => {
+          if (key === "skillBonus") { s.skills.academic += value; return; }
+          if (typeof value === "number" && typeof s[key] === "number") s[key] += value;
+          else s[key] = value;
+        });
+      }
+      return s;
+    }
+
+    function startNewGame() {
+      const name = $("playerName").value.trim();
+      state = createInitialState(name, selectedBackground);
+      saveGame(false);
+      showScreen("gameScreen");
+      renderScene(getIntroScene());
+      updateHUD();
+    }
+
+    function getIntroScene() {
+      return {
+        id: "intro",
+        chapter: "Chapter 1 · Starting Out",
+        title: `Your First Big Choice, ${state.name}`,
+        text: `It is early morning in Lusaka. You are 18, you have finished Grade 12, and K${state.cash.toLocaleString("en-ZM")} is all the money you can call your own.\n\nAt home, the message is clear: you are welcome, but you must begin contributing. A noticeboard, a busy market and a friend with an idea offer three very different starts.`,
+        notice: "There is no perfect opening. A job gives stability, a side hustle gives control, and education improves later opportunities.",
+        choices: [
+          { title: "Apply for shop work", detail: "Stable income, modest growth. Become a Shop Assistant.", className: "good", action: () => { state.job = "shop"; state.reputation += 1; state.energy -= 4; record("Started work as a Shop Assistant"); advanceAfterChoice("You visit several shops with a simple CV. One manager offers you a trial. The pay is not large, but you now have a reliable starting point."); } },
+          { title: "Start selling on a small scale", detail: "Spend K600 on stock and begin a street side hustle.", className: "risky", action: () => chooseBusinessType() },
+          { title: "Take casual work and save for training", detail: "Lower pay, but flexible enough to study later.", action: () => { state.job = "casual"; state.cash += 300; gainSkill('practical', .3); record("Took flexible casual work"); advanceAfterChoice("You find flexible casual work. The days can be unpredictable, but you decide to use the flexibility to build a plan."); } }
+        ]
+      };
+    }
+
+    function chooseBusinessType() {
+      renderScene({
+        id: "business_type",
+        chapter: chapterForAge(state.age),
+        title: "What Will You Sell or Do?",
+        text: "Start with one simple offer you can explain, price and deliver. Different businesses reward different skills.",
+        choices: [
+          { title: "Fritters and bottled drinks · K600", detail: "Reliable everyday demand and a small quarterly cash buffer.", action: () => startSideHustle("Food & Drinks", 600, "You wake before sunrise to prepare your first small batch. Location, hygiene and consistency matter as much as taste.", { reliable: true }) },
+          { title: "Second-hand clothing · K600", detail: "Better networking and reputation growth.", action: () => startSideHustle("Second-hand Clothing", 600, "You begin with carefully selected items and learn to listen for sizes, styles and price limits.", { network: 1, reputation: 1 }) },
+          { title: "Phone accessories · K800", detail: "Requires product knowledge, but improves skill faster.", action: () => startSideHustle("Phone Accessories", 800, "Chargers, cables and screen protectors fit into one bag. Customers trust sellers who can explain compatibility honestly.", { skill: .8 }) },
+          { title: "Laundry & cleaning service · K700", detail: "Low stock risk; uses time and reliability instead.", action: () => startSideHustle("Laundry & Cleaning", 700, "You begin with a small set of supplies and clear prices. Reliability creates repeat customers faster than flashy advertising.", { reputation: 2, energy: -4 }) },
+          { title: "Egg and vegetable resale · K1,000", detail: "Frequent demand, but stock can spoil if planning is poor.", action: () => startSideHustle("Egg & Vegetable Resale", 1000, "You buy a small quantity, compare locations and avoid overstocking. Fast turnover matters more than a large display.", { businessBonus: .025 }) },
+          backChoice()
+        ]
+      });
+    }
+
+    function startSideHustle(type, cost, narrative, bonus) {
+      if (state.cash < cost) { toast(`You need ${formatMoney(cost)}.`); return; }
+      state.cash -= cost;
+      state.businessLevel = 1;
+      state.businessType = type;
+      state.totalBusinessSpent += cost;
+      if (bonus.reliable) state.flags.reliableTrade = true;
+      state.network += bonus.network || 0;
+      state.reputation += bonus.reputation || 0;
+      gainSkill(bonus.skillType || "business", bonus.skill || 0);
+      state.energy += bonus.energy || 0;
+      state.businessBonus += bonus.businessBonus || 0;
+      record(`Started a ${type} side hustle`);
+      advanceAfterChoice(narrative);
+    }
+
+    function record(text) {
+      state.history.push({ turn: state.turn, age: state.age, text });
+      if (state.history.length > 40) state.history.shift();
+    }
+
+    function rollBusinessProfit(business, vehicle) {
+      if (business.level === 0) return 0;
+      const education = educationRank(state);
+      const capability = clamp(.58 + state.skills.business * .035 + education * .055 + (state.flags.businessRecords ? .12 : 0) + (state.flags.diversified ? .05 : 0), .55, 1.25);
+      const reach = 1 + (state.businessBonus || 0) + (vehicle.businessBonus || 0);
+      const base = business.profit * capability * reach;
+      const roll = Math.random();
+      let result;
+
+      if (business.level === 1) {
+        // A first hustle is not a salary. One in a hundred can break through,
+        // while most quarters are weak, unstable or loss-making.
+        if (roll < .01) {
+          result = base * (4.5 + Math.random() * 2.5);
+          state.hustleBreakthroughs = (state.hustleBreakthroughs || 0) + 1;
+          record("A small hustle had an exceptional breakthrough quarter");
+        } else if (roll < .38) {
+          result = -base * (.15 + Math.random() * .7);
+          state.hustleLosses = (state.hustleLosses || 0) + 1;
+        } else if (roll < .84) {
+          result = base * (.05 + Math.random() * .38);
+        } else {
+          result = base * (.45 + Math.random() * .55);
+        }
+      } else if (business.level === 2) {
+        if (roll < .18) result = -base * (.08 + Math.random() * .3);
+        else if (roll < .72) result = base * (.35 + Math.random() * .4);
+        else result = base * (.8 + Math.random() * .55);
+      } else {
+        if (roll < .10) result = base * (.25 + Math.random() * .25);
+        else if (roll < .82) result = base * (.72 + Math.random() * .42);
+        else result = base * (1.2 + Math.random() * .45);
+      }
+
+      if (state.flags.reliableTrade && business.level === 1) result += 120;
+      if (state.energy < 20) result *= .72;
+      if (state.stress > 80) result *= .78;
+      return Math.round(result);
+    }
+
+    function applyQuarterlyFinance() {
+      const job = currentJob();
+      const business = currentBusiness();
+      const food = currentFoodPlan();
+      const housing = currentHousingPlan();
+      const vehicle = currentVehicle();
+      let salary = job.salary;
+      if (state.studying) salary *= .75;
+      if (state.energy < 25) salary *= .85;
+
+      const businessProfit = rollBusinessProfit(business, vehicle);
+      const ageCost = Math.floor((state.age - 18) / 4) * 250;
+      const foodCost = food.cost + ageCost;
+      const housingCost = housing.cost + (state.age >= 27 ? 250 : 0);
+      const transportCost = vehicle.upkeep;
+      const assetIncome = Math.round(state.landIncome || 0);
+      const debtInterest = state.debt > 0 ? Math.max(100, state.debt * (state.debtRate || .035)) : 0;
+      const income = Math.round(salary + businessProfit + assetIncome);
+      const costs = Math.round(foodCost + housingCost + transportCost + debtInterest);
+      state.cash += income - costs;
+      state.totalIncome += Math.max(0, income);
+
+      if (state.cash > 0 && (state.unpaidBills || 0) > 0) {
+        const catchUp = Math.min(state.cash, state.unpaidBills);
+        state.cash -= catchUp;
+        state.unpaidBills -= catchUp;
+        record(`Caught up on ${formatMoney(catchUp)} of unpaid bills`);
+      }
+
+      state.energy += food.energy;
+      state.stress += food.stress + housing.stress;
+      state.network += housing.network + vehicle.network;
+
+      state.lastFinance = {
+        salary: Math.round(salary), businessProfit: Math.round(businessProfit), assetIncome,
+        foodCost, housingCost, transportCost, debtInterest: Math.round(debtInterest),
+        livingCost: Math.round(foodCost + housingCost + transportCost), net: income - costs
+      };
+
+      if (state.cash < 0) {
+        const shortfall = Math.ceil(Math.abs(state.cash) / 100) * 100;
+        state.cash = 0;
+        state.unpaidBills = (state.unpaidBills || 0) + shortfall;
+        state.stress += 9;
+        state.reputation = Math.max(0, state.reputation - 1);
+        if (state.debt > 0) {
+          state.missedPayments = (state.missedPayments || 0) + 1;
+          state.creditHistory = (state.creditHistory || 0) - 3;
+        }
+        record(`Could not cover ${formatMoney(shortfall)} of quarterly costs`);
+      } else if (state.debt > 0 && state.lastFinance.net >= 0) {
+        state.creditHistory = Math.min(15, (state.creditHistory || 0) + .25);
+      }
+    }
+
+    function progressStudy() {
+      if (!state.studying) return null;
+      state.studying.remaining -= 1;
+      state.energy -= 6;
+      state.stress += 4;
+      if (state.studying.remaining <= 0) {
+        const track = state.studying.track;
+        const finished = educationTracks[track].levels.find(l => l.id === state.studying.id);
+        state.education[track] = finished.rank;
+        gainSkill(track, finished.gain);
+        state.reputation += finished.rank * 2;
+        state.studying = null;
+        record(`Completed ${finished.name}`);
+        return `You completed your ${finished.name}. New jobs and business opportunities are now available.`;
+      }
+      return null;
+    }
+
+    function advanceTime() {
+      state.turn += 1;
+      state.quarter += 1;
+      if (state.quarter > 4) {
+        state.quarter = 1;
+        state.age += 1;
+      }
+      state.energy = clamp(state.energy + 5, 0, 100);
+      state.stress = clamp(state.stress - 2, 0, 100);
+      applyQuarterlyFinance();
+      const studyMessage = progressStudy();
+      normalizeState();
+      return studyMessage;
+    }
+
+    function advanceAfterChoice(outcomeText) {
+      const studyMessage = advanceTime();
+      saveGame(false);
+      if (checkEnding()) return;
+      const scene = buildQuarterScene();
+      scene.text = `${outcomeText}\n\n${financeSummary()}${studyMessage ? `\n\n🎓 ${studyMessage}` : ""}\n\n${scene.text}`;
+      renderScene(scene);
+      updateHUD();
+    }
+
+    function financeSummary() {
+      const f = state.lastFinance;
+      if (!f) return "";
+      const parts = [];
+      if (f.salary) parts.push(`salary ${formatMoney(f.salary)}`);
+      if (f.businessProfit) parts.push(`business result ${formatMoney(f.businessProfit)}`);
+      if (f.assetIncome) parts.push(`land income ${formatMoney(f.assetIncome)}`);
+      parts.push(`food ${formatMoney(f.foodCost || 0)}`);
+      parts.push(`housing ${formatMoney(f.housingCost || 0)}`);
+      parts.push(`transport ${formatMoney(f.transportCost || 0)}`);
+      if (f.debtInterest) parts.push(`loan cost ${formatMoney(f.debtInterest)}`);
+      return `📒 Quarter update: ${parts.join(" · ")}. Net change: ${formatMoney(f.net)}.`;
+    }
+
+    function normalizeState() {
+      state.cash = Math.round(state.cash);
+      state.debt = Math.max(0, Math.round(state.debt));
+      state.debtRate = clamp(Number(state.debtRate || .035), .015, .15);
+      state.creditHistory = clamp(Number(state.creditHistory || 0), -30, 20);
+      state.missedPayments = Math.max(0, Math.round(state.missedPayments || 0));
+      state.unpaidBills = Math.max(0, Math.round(state.unpaidBills || 0));
+      state.investments = Math.max(0, Math.round(state.investments));
+      state.energy = clamp(Math.round(state.energy), 0, 100);
+      state.stress = clamp(Math.round(state.stress * (1 - (state.stressResistance || 0) * .06)), 0, 100);
+      ["practical", "business", "academic"].forEach(t => { state.skills[t] = clamp(Math.round((state.skills[t] || 0) * 10) / 10, 0, 12); });
+      state.network = clamp(Math.round(state.network * 10) / 10, 0, 10);
+      state.reputation = clamp(Math.round(state.reputation), 0, 100);
+      state.landPlots = Math.max(0, Math.round(state.landPlots || 0));
+      state.landValue = Math.max(0, Math.round(state.landValue || 0));
+      state.landIncome = Math.max(0, Math.round(state.landIncome || 0));
+      if (!Array.isArray(state.recentEvents)) state.recentEvents = [];
+    }
+
+    function chapterForAge(age) {
+      if (age < 22) return "Chapter 1 · Starting Out";
+      if (age < 27) return "Chapter 2 · Building Skills and Stability";
+      if (age < 32) return "Chapter 3 · Growing Responsibilities";
+      if (age < 37) return "Chapter 4 · Expanding Your Options";
+      return "Chapter 5 · Looking Ahead";
+    }
+
+    function buildQuarterScene() {
+      if ((state.unpaidBills || 0) > 0) return financialCrisisScene();
+      if (state.energy <= 15 || state.stress >= 90) return burnoutScene();
+      const milestone = getMilestoneScene();
+      if (milestone) return milestone;
+      if (state.turn > 1 && chance(.46)) return randomEventScene();
+      return planningScene();
+    }
+
+    function getMilestoneScene() {
+      const milestones = [
+        { key: "mentor", test: s => s.turn >= 4 && !s.flags.mentor, scene: mentorScene },
+        { key: "mobileMoneyLesson", test: s => s.turn >= 8 && !s.flags.mobileMoneyLesson, scene: mobileMoneyScene },
+        { key: "registrationLesson", test: s => s.businessLevel >= 2 && !s.flags.registrationLesson, scene: registrationScene },
+        { key: "educationCheck", test: s => s.turn >= 10 && educationRank(s) === 0 && !s.studying && !s.flags.educationCheck, scene: educationCheckScene },
+        { key: "investmentLesson", test: s => s.cash >= 45000 && !s.flags.investmentLesson, scene: investmentScene }
+      ];
+      for (const m of milestones) {
+        if (m.test(state)) {
+          state.flags[m.key] = true;
+          return m.scene();
+        }
+      }
+      return null;
+    }
+
+    function returnToPlanning() {
+      renderScene(planningScene());
+      updateHUD();
+    }
+
+    function planningScene() {
+      const job = currentJob();
+      const business = currentBusiness();
+      return {
+        id: "planning",
+        chapter: chapterForAge(state.age),
+        title: getPlanningTitle(),
+        text: getPlanningText(business, job),
+        notice: state.studying ? `You are studying for a ${educationTracks[state.studying.track].levels.find(l => l.id === state.studying.id).name}. ${state.studying.remaining} quarter(s) remain.` : "Choose an area. Opening a menu does not use a quarter; completing an action does.",
+        choices: [
+          { title: "💼 Work & career", detail: "Jobs, extra work, promotions and practical experience.", action: careerScene },
+          { title: "📚 Education & skills", detail: "Qualifications, short courses, bookkeeping, digital skills and a driving licence.", className: "good", action: educationMenuScene },
+          { title: "🛍️ Business & customers", detail: "Start, promote, formalise and grow a business.", className: state.businessLevel ? "good" : "risky", action: businessMenuScene },
+          { title: "🏠 Money & household budget", detail: "Choose food, housing, savings and debt priorities.", action: budgetMenuScene },
+          { title: "🚗 Assets & property", detail: "Buy transport, invest in verified land or develop property.", className: "risky", action: assetMenuScene },
+          { title: "🤝 Wellbeing & connections", detail: "Rest, family, community, networking and unexpected opportunities.", action: personalMenuScene }
+        ]
+      };
+    }
+
+    function backChoice() {
+      return { title: "← Back to main choices", detail: "Choose a different area without using a quarter.", action: returnToPlanning };
+    }
+
+    function careerScene() {
+      const job = currentJob();
+      const choices = [];
+      if (job.id === "none") {
+        choices.push({ title: "Search for steady work", detail: "Apply for the best job your current profile can reach.", action: searchForJob });
+        choices.push({ title: "Take a casual paid task", detail: "Earn K1,200 and gain a little practical experience.", action: () => { state.cash += 1200; gainSkill('practical', .25); state.energy -= 12; advanceAfterChoice("You accept a short practical job. The pay is modest, but you gain a reference and learn how work is organised."); } });
+      } else {
+        choices.push({ title: "Work extra and save", detail: `Earn about ${formatMoney(job.salary * .55)}, but lose energy and gain stress.`, action: () => {
+          const extra = Math.round(job.salary * .55); state.cash += extra; state.energy -= 20; state.stress += 12; gainSkill('practical', .2); record("Worked extra hours");
+          advanceAfterChoice(`You take extra shifts and earn ${formatMoney(extra)}. The money helps, but your body feels the cost.`);
+        }});
+        choices.push({ title: "Apply for a better job", detail: "Skill, education, network and reputation improve your chance.", action: searchForJob });
+        choices.push({ title: "Ask for responsibility and training", detail: "A promotion is not guaranteed, but visibility and skill can grow.", className: "good", action: () => {
+          state.energy -= 8; gainSkill('practical', .45); const success = chance(.35 + state.reputation * .006 + totalSkill(state) * .035);
+          if (success) { state.reputation += 3; state.network += .4; state.cash += Math.round(job.salary * .25); advanceAfterChoice("You ask for a real responsibility rather than only a title. Your supervisor gives you a small project and a performance bonus."); }
+          else { state.reputation += 1; state.stress += 2; advanceAfterChoice("There is no promotion yet, but your manager explains which results and skills would make the next application stronger."); }
+        }});
+        choices.push({ title: "Do a weekend paid task", detail: "Earn K1,800, gain experience, but reduce recovery time.", action: () => { state.cash += 1800; gainSkill('practical', .25); state.energy -= 15; state.stress += 5; advanceAfterChoice("You complete a weekend task for someone in your network. It brings extra cash and a useful reference."); } });
+      }
+      choices.push(backChoice());
+      renderScene({ id: "career_menu", chapter: chapterForAge(state.age), title: "Work & Career", text: `Current position: ${job.name}. Stable income matters, but career growth usually requires evidence of skill, reliability and relationships.`, choices });
+    }
+
+    function educationMenuScene() {
+      const choices = [];
+      if (state.studying) {
+        const track = state.studying.track;
+        const level = educationTracks[track].levels.find(l => l.id === state.studying.id);
+        choices.push({ title: "Focus on current studies", detail: `${state.studying.remaining} quarter(s) remaining on ${level.name}. Gain extra ${educationTracks[track].label} skill, but reduce work time.`, className: "good", action: () => { gainSkill(track, .6); state.energy -= 12; state.stress += 5; record("Focused on studies"); advanceAfterChoice("You turn down distractions and spend more time studying. The material becomes easier to understand."); } });
+      } else {
+        Object.keys(educationTracks).forEach(track => {
+          const next = nextEducationLevel(track);
+          if (!next) return;
+          const cost = discountedEducationCost(next);
+          const have = state.skills[track] || 0;
+          const locked = have < (next.reqSkill || 0);
+          choices.push({
+            title: `${educationTracks[track].label}: ${next.name}`,
+            detail: locked ? `Locked: needs ${educationTracks[track].label} skill ${next.reqSkill} (you have ${have.toFixed(1)}). Build it through related work, courses or experience first.` : `${formatMoney(cost)} · ${next.turns} quarters · unlocks new jobs and options`,
+            className: locked ? "" : "good",
+            disabled: locked,
+            action: () => enrolEducation(track, next)
+          });
+        });
+      }
+      if (!state.flags.bookkeepingCourse) choices.push({ title: "Basic bookkeeping course", detail: "K1,400 · better records and stronger business decisions.", action: () => takeMicroCourse("bookkeepingCourse", 1400, "You learn to separate sales, costs, cash and profit. The business becomes easier to control.", () => { gainSkill('business', .7); state.businessBonus += .035; state.flags.businessRecords = true; }) });
+      if (!state.flags.digitalCourse) choices.push({ title: "Digital selling & customer service", detail: "K1,100 · grow network, reputation and online sales ability.", action: () => takeMicroCourse("digitalCourse", 1100, "You practise clear prices, customer messages, simple product photos and responsible order handling.", () => { gainSkill('business', .55); state.network += .7; state.reputation += 2; state.businessBonus += .025; }) });
+      if (!state.flags.drivingLicence) choices.push({ title: "Work toward a driving licence", detail: "K3,500 · required before buying a small car in this game.", action: () => takeMicroCourse("drivingLicence", 3500, "You complete lessons and testing. More jobs and transport choices are now practical.", () => { gainSkill('practical', .35); state.reputation += 1; }) });
+      choices.push(backChoice());
+      renderScene({ id: "education_menu", chapter: chapterForAge(state.age), title: "Education & Practical Skills", text: "Three paths can build your qualifications: hands-on Practical & Trade training, Business & Trade management, or Academic/University study. Each level needs a minimum amount of its own kind of skill before you can enrol — build that skill through matching work, courses or experience first.", choices });
+    }
+
+    function takeMicroCourse(flag, cost, text, effect) {
+      if (state.cash < cost) return toast(`You need ${formatMoney(cost)}.`);
+      state.cash -= cost; state.totalEducationSpent += cost; state.energy -= 9; state.stress += 3; state.flags[flag] = true; effect(); record(`Completed ${flag}`); advanceAfterChoice(text);
+    }
+
+    function businessMenuScene() {
+      const choices = [];
+      const nextBusiness = businesses[state.businessLevel + 1];
+      if (state.businessLevel === 0) {
+        choices.push({ title: "Start a small side hustle", detail: "Choose from several low-cost products or services.", className: "risky", action: chooseBusinessType });
+      } else {
+        if (nextBusiness) {
+          const missing = businessUpgradeMissing(nextBusiness);
+          choices.push({ title: `Grow into: ${nextBusiness.name}`, detail: missing || `${formatMoney(nextBusiness.cost)} investment · higher profit and value`, className: missing ? "" : "risky", disabled: Boolean(missing), action: () => upgradeBusiness(nextBusiness) });
+        }
+        choices.push({ title: "Win more customers", detail: `Spend ${formatMoney(700 * state.businessLevel)} on stock, service and promotion.`, action: promoteBusiness });
+        if (!state.flags.businessRecords) choices.push({ title: "Set up proper records", detail: "Spend K1,600. Improve control, trust and future profit.", className: "good", action: () => { if (state.cash < 1600) return toast("You need K1,600."); state.cash -= 1600; gainSkill('business', .6); state.reputation += 2; state.businessBonus += .04; state.flags.businessRecords = true; advanceAfterChoice("You separate personal and business money, record each sale and review stock. Small leaks become visible."); } });
+        if (!state.flags.diversified && state.businessLevel >= 1) choices.push({ title: "Add a second product or service", detail: "Spend K2,500. Reduce dependence on one source of sales.", action: () => { if (state.cash < 2500) return toast("You need K2,500."); state.cash -= 2500; state.businessBonus += .055; gainSkill('business', .35); state.flags.diversified = true; advanceAfterChoice("You test a related product in small quantities instead of buying too much stock. The extra option attracts new customers."); } });
+        if (state.businessLevel >= 2) choices.push({ title: "Train a part-time helper", detail: "Spend K3,500. Improve capacity and reduce your workload.", action: () => { if (state.cash < 3500) return toast("You need K3,500."); state.cash -= 3500; state.businessBonus += .035; state.energy += 5; state.stress -= 5; state.reputation += 1; advanceAfterChoice("You write down the task, demonstrate it and check the work. The helper is not perfect, but you regain time for customers and planning."); } });
+      }
+      choices.push(backChoice());
+      renderScene({ id: "business_menu", chapter: chapterForAge(state.age), title: "Business & Customers", text: state.businessLevel ? `Your ${state.businessType || "business"} is at the “${currentBusiness().name}” stage. Income is uncertain, especially at side-hustle level. Education, records, repeat customers and controlled costs improve the odds.` : "You do not own a business yet. A tiny side hustle can teach sales and cash flow, but it is not a guaranteed salary. Most early quarters will be weak or loss-making unless you build real demand and skill.", choices });
+    }
+
+    function budgetMenuScene() {
+      const f = currentFoodPlan(), h = currentHousingPlan(), v = currentVehicle();
+      const choices = [
+        { title: "Choose a food plan", detail: `${f.name} · ${formatMoney(f.cost)} per quarter`, action: foodPlanScene },
+        { title: "Choose a housing plan", detail: `${h.name} · ${formatMoney(h.cost)} per quarter`, action: housingPlanScene },
+        { title: "Move K1,000 into long-term savings", detail: "Adds to net worth and grows slowly each year.", action: () => investFixed(1000) },
+        { title: "Move K5,000 into long-term savings", detail: "A larger commitment; keep enough cash for emergencies.", action: () => investFixed(5000) },
+        { title: "Bank, loans & creditworthiness", detail: `Bank trust ${creditworthiness()}/100 · compare safe and dangerous borrowing.`, className: "risky", action: bankMenuScene }
+      ];
+      if (state.debt > 0) choices.push({ title: "Repay part of your debt", detail: `Pay up to K5,000. Current debt: ${formatMoney(state.debt)}.`, className: "good", action: repayDebt });
+      choices.push(backChoice());
+      renderScene({ id: "budget_menu", chapter: chapterForAge(state.age), title: "Money & Household Budget", text: `Your current regular quarterly household costs are about ${formatMoney(f.cost + h.cost + v.upkeep)} before debt interest. Estimated income is ${formatMoney(estimatedQuarterlyIncome())}. Bank trust is ${creditworthiness()}/100. A cheaper life protects cash; a better-supported life can protect energy and focus.`, choices });
+    }
+
+    function foodPlanScene() {
+      const choices = foodPlans.map(plan => ({ title: `${plan.name} · ${formatMoney(plan.cost)}/quarter`, detail: `${plan.text} (${plan.energy >= 0 ? "+" : ""}${plan.energy} energy, ${plan.stress >= 0 ? "+" : ""}${plan.stress} stress per quarter)`, className: plan.id === state.foodPlan ? "good" : "", action: () => { state.foodPlan = plan.id; record(`Changed food plan to ${plan.name}`); advanceAfterChoice(`You choose the “${plan.name}” food budget. It will affect costs and recovery from now on.`); } }));
+      choices.push(backChoice());
+      renderScene({ id: "food_plan", chapter: chapterForAge(state.age), title: "Choose Your Food Budget", text: "Nshima itself is a filling staple. In this game, the difference comes from portion size, variety, protein, vegetables and how much time or money you spend preparing meals.", choices });
+    }
+
+    function housingPlanScene() {
+      const choices = housingPlans.map(plan => ({ title: `${plan.name} · ${formatMoney(plan.cost)}/quarter`, detail: `${plan.text} (${plan.stress >= 0 ? "+" : ""}${plan.stress} stress, ${plan.network >= 0 ? "+" : ""}${plan.network} network per quarter)`, className: plan.id === state.housingPlan ? "good" : "", action: () => { state.housingPlan = plan.id; record(`Changed housing to ${plan.name}`); advanceAfterChoice(`You reorganise your living situation around the “${plan.name}” option. The cost and daily pressure will now change.`); } }));
+      choices.push(backChoice());
+      renderScene({ id: "housing_plan", chapter: chapterForAge(state.age), title: "Choose Your Housing", text: "Housing changes more than rent. Privacy, family obligations, transport and emotional support all affect the plan.", choices });
+    }
+
+    function investFixed(amount) {
+      if (state.cash < amount + 500) return toast(`Keep an emergency buffer. You need at least ${formatMoney(amount + 500)} cash.`);
+      state.cash -= amount; state.investments += amount; gainSkill('academic', .1); record(`Saved ${formatMoney(amount)} for the long term`); advanceAfterChoice(`You move ${formatMoney(amount)} away from daily spending and keep a small cash buffer. Slow, controlled growth is less exciting than a miracle promise—but more believable.`);
+    }
+
+    function repayDebt() {
+      const amount = Math.min(5000, state.debt, Math.max(0, state.cash - 500));
+      if (amount < 500) return toast("You need at least K1,000 cash to make a safe repayment.");
+      state.cash -= amount; state.debt -= amount; state.stress -= 4; state.creditHistory = Math.min(20, (state.creditHistory || 0) + 2); record(`Repaid ${formatMoney(amount)} of debt`); advanceAfterChoice(`You repay ${formatMoney(amount)}. The result is not flashy, but future interest costs fall and the bank sees a stronger repayment history.`);
+    }
+
+    function weightedDebtRate(newAmount, newRate) {
+      const oldDebt = state.debt || 0;
+      if (oldDebt + newAmount <= 0) return .035;
+      return ((oldDebt * (state.debtRate || .035)) + (newAmount * newRate)) / (oldDebt + newAmount);
+    }
+
+    function takeLoan(amount, rate, label, outcome, creditChange = 0) {
+      const rounded = Math.round(amount / 100) * 100;
+      state.debtRate = weightedDebtRate(rounded, rate);
+      state.debt += rounded;
+      state.cash += rounded;
+      state.creditHistory = (state.creditHistory || 0) + creditChange;
+      state.stress += rate >= .08 ? 9 : 3;
+      record(`Borrowed ${formatMoney(rounded)} through ${label}`);
+      advanceAfterChoice(outcome);
+    }
+
+    function bankMenuScene() {
+      const score = creditworthiness();
+      const income = estimatedQuarterlyIncome();
+      const costs = estimatedQuarterlyCosts();
+      const choices = [];
+      const emergencyLocked = score < 40 || income <= 0 || state.debt > income * 4;
+      choices.push({ title: "Apply for a small bank emergency loan · K6,000", detail: emergencyLocked ? "Locked: usually needs income, manageable debt and Bank trust 40+." : "Lower-cost borrowing for a genuine shortfall. About 3% quarterly cost in this game.", className: emergencyLocked ? "" : "good", disabled: emergencyLocked, action: () => takeLoan(6000, .03, "a bank emergency loan", "The bank checks your income, expenses and existing debt before approving a small loan. It solves today's problem, but it is not extra income.", 1) });
+      const options = eligibleNextEducations().sort((a, b) => discountedEducationCost(a.next) - discountedEducationCost(b.next));
+      const target = options[0];
+      const educationLocked = score < 50 || !target || Boolean(state.studying) || income <= 0;
+      choices.push({ title: target ? `Finance and begin: ${target.next.name}` : "Education funding", detail: educationLocked ? "Locked: needs an unlocked course (build the matching skill first), no current study, reliable income and Bank trust 50+." : `Borrow only what is needed for the ${target.next.name} and begin immediately.`, disabled: educationLocked, className: educationLocked ? "" : "good", action: () => enrolEducation(target.track, target.next) });
+      const businessLocked = score < 60 || state.businessLevel < 1 || !state.flags.businessRecords;
+      choices.push({ title: "Apply for a small business loan · K25,000", detail: businessLocked ? "Locked: needs a running business, records and Bank trust 60+." : "Useful only when sales, costs and repayment are already understood.", disabled: businessLocked, action: () => takeLoan(25000, .032, "a small business loan", "Because you can show records and a repayment plan, the bank approves controlled business finance. The debt will not rescue a business with no customers.", 1) });
+      choices.push({ title: "Take a high-cost informal loan · K5,000", detail: "Easy approval, around 10% quarterly cost. This can deepen a crisis quickly.", className: "risky", action: () => takeLoan(5000, .10, "a high-cost informal lender", "The money arrives quickly and with few questions. The price is severe: interest grows while the underlying budget problem remains.", -8) });
+      if (state.debt > 0) choices.push({ title: "Repay part of existing debt", detail: `Current debt ${formatMoney(state.debt)} · blended quarterly cost about ${Math.round((state.debtRate || .035) * 100)}%.`, className: "good", action: repayDebt });
+      choices.push(backChoice());
+      renderScene({ id: "bank_menu", chapter: chapterForAge(state.age), title: "Bank, Loans & Creditworthiness", text: `Bank trust: ${score}/100. Estimated quarterly income: ${formatMoney(income)}. Estimated regular costs: ${formatMoney(costs)}. Banks look for reliable income, manageable debt, records and repayment history. A loan can bridge a problem or fund a plan—but it cannot turn a weak plan into profit.`, choices });
+    }
+
+    function reduceUnpaidBills(amount, narrative) {
+      const payment = Math.min(state.unpaidBills || 0, Math.max(0, amount));
+      state.unpaidBills -= payment;
+      state.stress -= Math.min(8, payment / 700);
+      record(`Covered ${formatMoney(payment)} of unpaid bills`);
+      advanceAfterChoice(`${narrative} You cover ${formatMoney(payment)} of the shortfall.${state.unpaidBills > 0 ? ` ${formatMoney(state.unpaidBills)} remains unpaid.` : " The immediate crisis is cleared."}`);
+    }
+
+    function financialCrisisScene() {
+      const shortfall = state.unpaidBills || 0;
+      const score = creditworthiness();
+      const choices = [];
+      const bankAmount = Math.max(3000, Math.ceil((shortfall + 1500) / 500) * 500);
+      const bankLocked = score < 40 || estimatedQuarterlyIncome() <= 0 || state.debt > estimatedQuarterlyIncome() * 4;
+      choices.push({ title: `Apply for a bank loan · ${formatMoney(bankAmount)}`, detail: bankLocked ? `Rejected for now: Bank trust ${score}/100, weak income or too much existing debt.` : "Clear the bills and keep a small buffer, with a lower interest cost.", disabled: bankLocked, className: bankLocked ? "" : "good", action: () => { state.debtRate = weightedDebtRate(bankAmount, .03); state.debt += bankAmount; state.cash += bankAmount; state.creditHistory += 1; const paid = Math.min(state.cash, state.unpaidBills); state.cash -= paid; state.unpaidBills -= paid; state.stress += 2; record(`Used a bank loan to cover ${formatMoney(paid)} of bills`); advanceAfterChoice("The bank approves a limited loan after checking income and debt. The urgent bills are covered, but future quarters now include interest."); } });
+      if (state.investments > 0) choices.push({ title: "Use long-term savings", detail: `Available savings: ${formatMoney(state.investments)}. Avoid new debt, but reduce your safety net.`, className: "good", action: () => { const used = Math.min(state.investments, shortfall); state.investments -= used; reduceUnpaidBills(used, "You use money that had been set aside for the future."); } });
+      if (state.vehicle !== "none") choices.push({ title: `Sell the ${currentVehicle().name}`, detail: `Receive about ${formatMoney(Math.round(currentVehicle().value * .65))} and cut future transport costs.`, action: () => { const value = Math.round(currentVehicle().value * .65); const sold = currentVehicle().name; state.vehicle = "none"; state.cash += value; const paid = Math.min(state.cash, state.unpaidBills); state.cash -= paid; state.unpaidBills -= paid; record(`Sold ${sold} during a financial crisis`); advanceAfterChoice(`You sell the ${sold}, cover ${formatMoney(paid)} of bills and reduce future upkeep. It is painful, but it prevents expensive debt from growing.`); } });
+      choices.push({ title: "Ask family or trusted contacts for temporary help", detail: "Success depends on network. Help may protect you, but repeated requests strain relationships.", action: () => { const success = chance(.25 + state.network * .055); const help = success ? Math.min(shortfall, 1200 + state.network * 450) : 0; if (success) { state.network = Math.max(0, state.network - .3); reduceUnpaidBills(help, "Someone in your support network helps after you explain the exact amount and repayment plan."); } else { state.stress += 4; gainSkill('practical', .1); advanceAfterChoice("People care, but they cannot cover the amount this time. You still need a practical solution."); } } });
+      choices.push({ title: currentJob().id === "none" ? "Take casual work and make a payment plan" : "Take extra paid work and make a payment plan", detail: "Create reliable income, earn K2,000 now and reduce the shortfall without a new loan.", className: "good", action: () => { if (currentJob().id === "none") state.job = "casual"; state.energy -= 18; state.stress += 4; gainSkill('practical', .25); reduceUnpaidBills(2000, "You accept practical paid work and contact the people you owe instead of hiding from the problem."); } });
+      choices.push({ title: "Take a high-cost informal loan", detail: `Borrow enough to cover ${formatMoney(shortfall)} plus a small buffer. Around 10% quarterly cost.`, className: "risky", action: () => { const amount = Math.ceil((shortfall + 1000) / 500) * 500; state.debtRate = weightedDebtRate(amount, .10); state.debt += amount; state.cash += amount; state.creditHistory -= 8; const paid = Math.min(state.cash, state.unpaidBills); state.cash -= paid; state.unpaidBills -= paid; state.stress += 10; record("Used high-cost informal debt in a crisis"); advanceAfterChoice("The lender asks few questions and gives cash quickly. The bills are paid, but the interest makes next quarter harder unless income or costs change immediately."); } });
+      choices.push({ title: "Cut living costs and take any available paid work", detail: "Move to the cheapest food and housing plans, earn K1,600 and reduce the shortfall.", action: () => { state.foodPlan = "basic"; state.housingPlan = "family"; state.energy -= 18; state.stress += 5; gainSkill('practical', .2); reduceUnpaidBills(1600, "You accept difficult work and reduce household costs immediately."); } });
+      return { id: "financial_crisis", chapter: chapterForAge(state.age), title: "The Quarter Ended With Unpaid Bills", text: `You could not cover ${formatMoney(shortfall)}. This is not an automatic game over. You must now decide whether to cut costs, use assets, ask for help or borrow. Bank trust is ${score}/100, so not every loan is available.`, notice: "Borrowing solves a timing problem only when future income can realistically cover both normal costs and interest.", choices };
+    }
+
+    function assetMenuScene() {
+      const choices = [
+        { title: "Look at transport options", detail: `Current: ${currentVehicle().name}. Vehicles change cost, mobility and business reach.`, action: vehicleMarketScene },
+        { title: "Buy a verified small land plot", detail: "K30,000 · documents and boundaries checked in this game.", className: "risky", action: buyVerifiedLand }
+      ];
+      if (state.landPlots > 0) {
+        choices.push({ title: "Develop one land plot", detail: "K12,000 · increase value and create K1,800 quarterly income.", className: "good", action: developLand });
+        choices.push({ title: "Sell one land plot", detail: "Receive the current average value of one plot.", action: sellLand });
+      }
+      choices.push(backChoice());
+      renderScene({ id: "asset_menu", chapter: chapterForAge(state.age), title: "Assets & Property", text: `Vehicles help you move and trade but require upkeep. Verified land can grow in value, while unclear ownership can destroy savings. Current asset value: ${formatMoney(currentVehicle().value + landAssetValue())}.`, choices });
+    }
+
+    function vehicleMarketScene() {
+      const choices = vehicles.filter(v => v.id !== "none").map(v => {
+        let locked = "";
+        if (v.id === "car" && !state.flags.drivingLicence) locked = "Locked: complete the driving licence option first.";
+        if (state.cash + Math.round(currentVehicle().value * .65) < v.cost) locked = locked || `Locked: need ${formatMoney(v.cost - state.cash - Math.round(currentVehicle().value * .65))} more cash after trade-in.`;
+        return { title: `${v.name} · ${formatMoney(v.cost)}`, detail: locked || `Quarterly upkeep ${formatMoney(v.upkeep)} · improves mobility and business reach.`, disabled: Boolean(locked), action: () => purchaseVehicle(v) };
+      });
+      if (state.vehicle !== "none") choices.push({ title: "Sell current vehicle", detail: `Receive about ${formatMoney(Math.round(currentVehicle().value * .65))} and return to public transport.`, action: sellVehicle });
+      choices.push(backChoice());
+      renderScene({ id: "vehicle_market", chapter: chapterForAge(state.age), title: "Transport Market", text: "A vehicle is useful, but fuel, repairs and upkeep continue after the purchase. Buy it because it improves your plan—not only because it looks successful.", choices });
+    }
+
+    function purchaseVehicle(v) {
+      const tradeIn = state.vehicle === "none" ? 0 : Math.round(currentVehicle().value * .65);
+      const price = v.cost - tradeIn;
+      if (state.cash < price) return toast(`You need ${formatMoney(price)} after trade-in.`);
+      state.cash -= price; state.vehicle = v.id; state.energy -= 4; state.reputation += v.id === "car" ? 2 : 1; record(`Bought ${v.name}`); advanceAfterChoice(`You buy a ${v.name}${tradeIn ? ` after a ${formatMoney(tradeIn)} trade-in` : ""}. Mobility improves, but the quarterly budget now includes upkeep.`);
+    }
+
+    function sellVehicle() {
+      const value = Math.round(currentVehicle().value * .65); const sold = currentVehicle().name; state.cash += value; state.vehicle = "none"; record(`Sold ${sold}`); advanceAfterChoice(`You sell the ${sold} for ${formatMoney(value)} and return to public transport. You lose convenience but free cash and reduce fixed costs.`);
+    }
+
+    function buyVerifiedLand() {
+      const cost = 30000;
+      if (state.cash < cost) return toast(`You need ${formatMoney(cost)}.`);
+      state.cash -= cost; state.landPlots += 1; state.landValue += 31500; gainSkill('academic', .25); state.reputation += 1; record("Bought a verified land plot"); advanceAfterChoice("You inspect the boundaries, verify the seller and documents, and only then transfer money. The plot becomes a long-term asset rather than a promise.");
+    }
+
+    function developLand() {
+      if (state.landPlots <= 0) return toast("You do not own land yet.");
+      if (state.cash < 12000) return toast("You need K12,000.");
+      state.cash -= 12000; state.landValue += 16000; state.landIncome += 1800; gainSkill('business', .35); state.stress += 3; record("Developed a land plot"); advanceAfterChoice("You add a simple income-producing use to part of the land. It takes planning and supervision, but it now contributes each quarter.");
+    }
+
+    function sellLand() {
+      if (state.landPlots <= 0) return toast("You do not own land.");
+      const perPlot = Math.round(state.landValue / state.landPlots); state.cash += perPlot; state.landValue -= perPlot; state.landPlots -= 1; state.landIncome = Math.max(0, state.landIncome - 1800); record("Sold one land plot"); advanceAfterChoice(`You sell one verified plot for ${formatMoney(perPlot)}. The cash is available immediately, but future appreciation and income are lower.`);
+    }
+
+    function personalMenuScene() {
+      const choices = [
+        { title: "Build your network", detail: "Attend a community, career or business event. Costs K400.", action: () => { if (state.cash < 400) return toast("You need K400 for transport and participation."); state.cash -= 400; state.network += 1.1; state.reputation += 1; state.energy -= 6; record("Built professional network"); advanceAfterChoice("You introduce yourself, listen more than you speak and leave with two useful contacts. Opportunities often begin before a vacancy is advertised."); } },
+        { title: "Rest and plan carefully", detail: "Recover energy, lower stress and review your finances.", className: "good", action: () => { state.energy += 26; state.stress -= 18; gainSkill('academic', .1); record("Rested and reviewed finances"); advanceAfterChoice("Instead of chasing every opportunity, you rest, write down your numbers and decide what your next serious goal should be."); } },
+        { title: "Help family or community", detail: "Spend K1,000. Build trust and support, but protect your own limits.", action: () => { if (state.cash < 1000) return toast("You need K1,000."); state.cash -= 1000; state.network += .8; state.reputation += 2; state.stress -= 2; advanceAfterChoice("You help with a clear amount rather than an open-ended promise. The support matters without destroying your budget."); } },
+        { title: "Explore an unexpected opportunity", detail: "You may find a real opening—or an offer designed to take your money.", className: "risky", action: () => renderScene(randomEventScene(true)) },
+        backChoice()
+      ];
+      renderScene({ id: "personal_menu", chapter: chapterForAge(state.age), title: "Wellbeing & Connections", text: "Relationships create support, information and opportunities. They can also create pressure. Sustainable success needs both generosity and boundaries.", choices });
+    }
+
+    function getPlanningTitle() {
+      return pick([
+        "What Will You Focus On?",
+        "A Quarter Can Change a Life",
+        "Choose Your Next Move",
+        "Small Decisions, Bigger Future"
+      ]);
+    }
+
+    function getPlanningText(business, job) {
+      const lines = [];
+      if (job.id !== "none") lines.push(`Your work as a ${job.name} gives you some stability.`);
+      else lines.push("You do not currently have a steady job, so every kwacha needs a purpose.");
+      if (business.level > 0) lines.push(`Your ${state.businessType || business.name} operation is now at the “${business.name}” stage.`);
+      if (state.studying) lines.push("Studying while earning money is demanding, but finishing could change the choices available to you.");
+      lines.push("You cannot do everything at once. Where will you place your time, money and energy this quarter?");
+      return lines.join("\n\n");
+    }
+
+    function discountedEducationCost(level) {
+      return Math.round(level.cost * (1 - (state.educationDiscount || 0)) / 100) * 100;
+    }
+
+    function enrolEducation(track, level) {
+      const cost = discountedEducationCost(level);
+      if (state.cash < cost) {
+        const needed = Math.ceil((cost - state.cash + 1000) / 500) * 500;
+        const bankScore = creditworthiness();
+        const bankLocked = bankScore < 50 || estimatedQuarterlyIncome() <= 0 || state.debt > estimatedQuarterlyIncome() * 4;
+        renderScene({
+          id: "study_funding",
+          chapter: chapterForAge(state.age),
+          title: "The Course Is Possible—but Not Yet Paid For",
+          text: `The ${level.name} costs ${formatMoney(cost)} in this simplified game. You have ${formatMoney(state.cash)}. Bank trust is ${bankScore}/100. A loan can help only if the qualification and future income can realistically cover repayment.`,
+          choices: [
+            { title: "Save and return later", detail: "Avoid debt and keep your options open.", action: () => { gainSkill('academic', .2); advanceAfterChoice("You decide not to rush into debt. You create a savings target and keep working toward it."); } },
+            { title: `Apply for a bank education loan · ${formatMoney(needed)}`, detail: bankLocked ? "Locked: needs Bank trust 50+, reliable income and manageable existing debt." : "Lower-cost borrowing that pays for this course and a small study buffer.", className: bankLocked ? "" : "good", disabled: bankLocked, action: () => {
+              state.debtRate = weightedDebtRate(needed, .025);
+              state.debt += needed;
+              state.cash += needed;
+              state.creditHistory += 1;
+              record(`Borrowed ${formatMoney(needed)} for recognised education`);
+              startStudy(track, level, cost, "The bank approves education funding after checking your income and repayment capacity. The loan creates an opportunity, but completing the qualification is still your responsibility.");
+            }},
+            { title: `Use a high-cost informal loan · ${formatMoney(needed)}`, detail: "Easy approval, but about 10% quarterly cost can overwhelm the benefit of studying.", className: "risky", action: () => {
+              state.debtRate = weightedDebtRate(needed, .10);
+              state.debt += needed;
+              state.cash += needed;
+              state.creditHistory -= 8;
+              record(`Used high-cost debt for ${level.name}`);
+              startStudy(track, level, cost, "You begin the course, but the expensive loan creates pressure from the first quarter. Education may help later; the debt costs money immediately.");
+            }}
+          ]
+        });
+        return;
+      }
+      startStudy(track, level, cost, `You enrol in the ${level.name}. For the next ${level.turns} quarters, work, study and rest will compete for your attention.`);
+    }
+
+    function startStudy(track, level, cost, narrative) {
+      state.cash -= cost;
+      state.totalEducationSpent += cost;
+      state.studying = { id: level.id, track, remaining: level.turns };
+      state.energy -= 8;
+      state.stress += 5;
+      record(`Enrolled in ${level.name}`);
+      advanceAfterChoice(narrative);
+    }
+
+    function searchForJob() {
+      const currentIndex = jobs.findIndex(j => j.id === state.job);
+      const eligible = jobs.filter((j, index) => index > currentIndex && j.req(state));
+      if (!eligible.length) {
+        gainSkill('practical', .25);
+        state.network += .2;
+        state.energy -= 6;
+        advanceAfterChoice("You apply for several positions, but employers ask for more experience, education or stronger references. The rejection is disappointing, yet it shows you exactly what to build next.");
+        return;
+      }
+      const best = eligible[eligible.length - 1];
+      const baseChance = .42 + state.network * .035 + state.reputation * .004 + totalSkill(state) * .025;
+      if (chance(clamp(baseChance, .45, .92))) {
+        state.job = best.id;
+        state.reputation += 2;
+        state.energy -= 8;
+        record(`Became a ${best.name}`);
+        advanceAfterChoice(`Your preparation pays off. You are offered a position as a ${best.name}, with quarterly earnings of about ${formatMoney(best.salary)} in this game.`);
+      } else {
+        gainSkill('practical', .3);
+        state.network += .4;
+        state.stress += 4;
+        advanceAfterChoice("You reach the interview stage but do not receive the offer. You ask for feedback, improve your answers and add a new contact to your network.");
+      }
+    }
+
+    function businessUpgradeMissing(next) {
+      const missing = [];
+      if (state.cash < next.cost) missing.push(`need ${formatMoney(next.cost - state.cash)} more cash`);
+      if (state.skills.business < next.reqSkill) missing.push(`need Business skill ${next.reqSkill}`);
+      if (state.reputation < next.reqRep) missing.push(`need Reputation ${next.reqRep}`);
+      return missing.length ? `Locked: ${missing.join(" · ")}` : "";
+    }
+
+    function upgradeBusiness(next) {
+      const missing = businessUpgradeMissing(next);
+      if (missing) return toast(missing);
+      state.cash -= next.cost;
+      state.totalBusinessSpent += next.cost;
+      state.businessLevel = next.level;
+      state.reputation += 4 + next.level;
+      state.stress += 8;
+      state.energy -= 10;
+      record(`Grew business into ${next.name}`);
+      advanceAfterChoice(`You reinvest ${formatMoney(next.cost)} instead of spending it personally. Your operation becomes a ${next.name}. The opportunity is larger, but so are the responsibilities.`);
+    }
+
+    function promoteBusiness() {
+      const cost = 700 * state.businessLevel;
+      if (state.cash < cost) return toast(`You need ${formatMoney(cost)}.`);
+      state.cash -= cost;
+      state.energy -= 8;
+      gainSkill('business', .35);
+      const good = chance(.58 + state.network * .025 + state.reputation * .003);
+      if (good) {
+        const gain = Math.round(currentBusiness().profit * (.35 + Math.random() * .35));
+        state.cash += gain;
+        state.reputation += 3;
+        state.network += .3;
+        record("Ran a successful customer campaign");
+        advanceAfterChoice(`You improve your stock, service and promotion. More customers return, producing an extra ${formatMoney(gain)} and stronger word of mouth.`);
+      } else {
+        state.reputation += 1;
+        state.stress += 3;
+        advanceAfterChoice("The promotion brings attention but fewer sales than expected. You still learn which message and products customers respond to.");
+      }
+    }
+
+    function mentorScene() {
+      return {
+        id: "mentor",
+        chapter: chapterForAge(state.age),
+        title: "A Conversation After Work",
+        text: "A local business owner notices that you ask practical questions instead of only talking about quick money. She offers one hour of advice, but you must travel across town and arrive prepared.",
+        choices: [
+          { title: "Go prepared with written questions", detail: "Spend K350. Gain skill, network and a clearer plan.", className: "good", action: () => {
+            if (state.cash < 350) return toast("You need K350 for transport and preparation.");
+            state.cash -= 350; gainSkill('business', 1); state.network += 1.2; state.reputation += 2; record("Met a business mentor");
+            advanceAfterChoice("You arrive early with your numbers and questions. The mentor does not promise easy success, but helps you separate sales from profit and ambition from a real plan.");
+          }},
+          { title: "Skip it and keep earning", detail: "Save the transport money, but miss the connection.", action: () => { state.cash += 300; state.energy -= 6; advanceAfterChoice("You choose immediate income over the meeting. It helps this quarter, though you wonder what advice you might have received."); } }
+        ]
+      };
+    }
+
+    function mobileMoneyScene() {
+      return {
+        id: "mobile_money",
+        chapter: chapterForAge(state.age),
+        title: "Customers Want an Easier Way to Pay",
+        text: "More customers are using mobile money. Accepting it could reduce lost sales, but you must learn to track transactions carefully and protect your PIN and working capital.",
+        choices: [
+          { title: "Learn safe mobile payment handling", detail: "Spend K300 and improve skill, trust and future business income.", className: "good", action: () => {
+            if (state.cash < 300) return toast("You need K300.");
+            state.cash -= 300; gainSkill('business', .6); state.reputation += 2; state.businessBonus += .04; record("Added safer mobile payment handling");
+            advanceAfterChoice("You separate personal and business transactions, keep simple records and never share your PIN. Customers appreciate having another way to pay.");
+          }},
+          { title: "Stay cash-only for now", detail: "No cost, but slower business growth.", action: () => { state.energy += 3; advanceAfterChoice("You remain cash-only. It is simpler, but a few customers walk away when they cannot pay immediately."); } }
+        ]
+      };
+    }
+
+    function registrationScene() {
+      return {
+        id: "registration",
+        chapter: chapterForAge(state.age),
+        title: "From Hustle to Real Business",
+        text: "Your operation is becoming too large to manage casually. A more formal structure, clearer records and a proper trading location could build trust—but they also create costs and responsibilities.",
+        choices: [
+          { title: "Improve records and formalise gradually", detail: "Spend K2,000. Gain reputation and make future growth easier.", className: "good", action: () => {
+            if (state.cash < 2000) return toast("You need K2,000.");
+            state.cash -= 2000; state.reputation += 6; gainSkill('business', .7); state.businessBonus += .05; record("Improved business records and formalisation");
+            advanceAfterChoice("You begin keeping proper sales and expense records, separate business money and move toward a more secure setup. The business feels less improvised.");
+          }},
+          { title: "Keep everything informal", detail: "Save cash now, but limit reputation and scaling.", className: "risky", action: () => { state.cash += 500; state.reputation = Math.max(0, state.reputation - 1); advanceAfterChoice("You keep the current setup because cash is tight. It works for now, but larger customers hesitate without clearer records."); } }
+        ]
+      };
+    }
+
+    function educationCheckScene() {
+      return {
+        id: "education_check",
+        chapter: chapterForAge(state.age),
+        title: "A Training Advertisement Looks Perfect",
+        text: "A new training provider promises a fast qualification and guaranteed employment. The message is exciting, but the details are vague and the payment deadline is today.",
+        notice: "A recognised institution and accredited programme matter. In real life, learners should verify providers with the relevant Zambian authority.",
+        choices: [
+          { title: "Verify before paying", detail: "Lose a little time, avoid a scam and gain financial judgement.", className: "good", action: () => { gainSkill('academic', .8); state.reputation += 1; advanceAfterChoice("You check the provider before paying. The claims do not stand up. You keep your money and learn that urgency is often used to stop people asking questions."); } },
+          { title: "Pay immediately", detail: "Risk K2,500 for a promised shortcut.", className: "risky", action: () => {
+            if (state.cash < 2500) return toast("You do not have K2,500.");
+            state.cash -= 2500; state.stress += 9; gainSkill('academic', .1); record("Lost money to an unverified training offer");
+            advanceAfterChoice("The classes are repeatedly postponed and the contact disappears. You lose K2,500, but the experience changes how you evaluate future offers.");
+          }}
+        ]
+      };
+    }
+
+    function investmentScene() {
+      return {
+        id: "investment",
+        chapter: chapterForAge(state.age),
+        title: "Your First Serious Savings",
+        text: "For the first time, you have enough cash to think beyond the next bill. You could keep it available, reinvest in your earning power or place part of it into a long-term investment.",
+        choices: [
+          { title: "Invest K20,000 for the long term", detail: "Adds to net worth and grows slowly each year.", className: "good", action: () => {
+            if (state.cash < 20000) return toast("You need K20,000.");
+            state.cash -= 20000; state.investments += 21500; gainSkill('academic', .3); record("Made a long-term investment");
+            advanceAfterChoice("You invest only money you do not need immediately and keep an emergency buffer. The growth is not dramatic, but your money now has another job.");
+          }},
+          { title: "Keep cash for business or education", detail: "More flexibility and no market risk.", action: () => { gainSkill('academic', .2); advanceAfterChoice("You keep the cash available because your next business or education step may require it. Liquidity is also a strategy."); } }
+        ]
+      };
+    }
+
+    function burnoutScene() {
+      return {
+        id: "burnout",
+        chapter: chapterForAge(state.age),
+        title: "Your Body Forces a Decision",
+        text: `Your energy is ${state.energy} and your stress is ${state.stress}. Concentration is slipping, and small problems feel larger than they are. Continuing at the same speed could damage everything you are building.`,
+        notice: "Success is not only income. A sustainable plan protects the person making the decisions.",
+        choices: [
+          { title: "Take a recovery quarter", detail: "Lose some income, restore energy and reduce stress sharply.", className: "good", action: () => {
+            const cost = 1800; state.cash = Math.max(0, state.cash - cost); state.energy += 45; state.stress -= 45; state.reputation += 1; record("Took time to recover");
+            advanceAfterChoice("You reduce commitments, sleep properly and ask for help. It costs money, but your judgement and patience begin to return.");
+          }},
+          { title: "Push through", detail: "Earn K3,000 now, with a high risk of a larger setback.", className: "risky", action: () => {
+            state.cash += 3000; state.energy -= 15; state.stress += 15;
+            if (chance(.55)) { state.cash = Math.max(0, state.cash - 6000); state.reputation = Math.max(0, state.reputation - 4); }
+            advanceAfterChoice("You force yourself through another difficult period. The extra income helps briefly, but mistakes and exhaustion take a toll.");
+          }}
+        ]
+      };
+    }
+
+    function randomEventScene(force = false) {
+      const eventFactories = [
+        customerComplaintEvent, supplierEvent, familyEvent, savingsGroupEvent, partnershipEvent, rainEvent,
+        employeeEvent, socialMediaEvent, fakeInvestmentEvent, magicMoneyEvent, fortuneTellerEvent, fakeJobEvent, fakeScholarshipEvent,
+        suspiciousLandEvent, mobileMoneyFraudEvent, vehicleRepairEvent, rentIncreaseEvent,
+        bulkOrderEvent, customerCreditEvent, marketInspectionEvent, stockTheftEvent, communityContractEvent,
+        overtimeShiftEvent, studyGroupEvent, healthConcernEvent, weddingInvitationEvent, familySchoolFeesEvent,
+        toolBreakdownEvent, freelanceGigEvent, financialLiteracyWorkshopEvent
+      ];
+      let scenes = eventFactories.map(fn => fn()).filter(scene => scene.available !== false && (!scene.onceKey || !state.flags[scene.onceKey]));
+      const recent = new Set(state.recentEvents || []);
+      let fresh = scenes.filter(scene => !recent.has(scene.id));
+      if (fresh.length) scenes = fresh;
+      const scene = pick(scenes.length ? scenes : [familyEvent()]);
+      if (scene.onceKey) state.flags[scene.onceKey] = true;
+      state.recentEvents = [...(state.recentEvents || []), scene.id].slice(-5);
+      return scene;
+    }
+
+    function overtimeShiftEvent() {
+      return {
+        id: "overtime_shift",
+        available: currentJob().id !== "none" && currentJob().id !== "casual",
+        chapter: chapterForAge(state.age),
+        title: "Your Supervisor Needs Overtime Cover",
+        text: "A colleague is away and the work still needs to be done today. Covering it is tiring, but it is also visible to the people who decide on future opportunities.",
+        choices: [
+          { title: "Accept the extra shift", detail: `Earn about ${formatMoney(Math.round(currentJob().salary * .3))}, but lose energy.`, className: "good", action: () => {
+            const extra = Math.round(currentJob().salary * .3);
+            state.cash += extra; state.energy -= 15; gainSkill('practical', .3); state.reputation += 1;
+            advanceAfterChoice(`You cover the shift without complaint. It earns ${formatMoney(extra)} and your reliability is noticed.`);
+          }},
+          { title: "Decline politely", detail: "Protect your energy, but miss the extra income and visibility.", action: () => { advanceAfterChoice("You explain that you cannot cover it today. Nobody is upset, but the opportunity to stand out passes to someone else."); } }
+        ]
+      };
+    }
+
+    function studyGroupEvent() {
+      return {
+        id: "study_group",
+        available: Boolean(state.studying) || educationRank(state) >= 1,
+        chapter: chapterForAge(state.age),
+        title: "A Study Group Forms",
+        text: "A few people studying the same kind of material want to meet weekly to compare notes and test each other. It costs time and a little transport money.",
+        choices: [
+          { title: "Join and prepare properly", detail: "Spend K200 on transport. Gain academic skill and a useful contact.", className: "good", action: () => {
+            if (state.cash < 200) return toast("You need K200.");
+            state.cash -= 200; state.energy -= 6; gainSkill('academic', .5); state.network += .3;
+            advanceAfterChoice("Explaining an idea to someone else is often the fastest way to understand it yourself. The group keeps you accountable between sessions.");
+          }},
+          { title: "Study alone instead", detail: "Save the money and time, but progress a little slower.", action: () => { gainSkill('academic', .2); advanceAfterChoice("You prefer your own pace and quiet space. It works, though you miss a few shortcuts other people already found."); } }
+        ]
+      };
+    }
+
+    function healthConcernEvent() {
+      return {
+        id: "health_concern",
+        available: state.turn >= 6,
+        chapter: chapterForAge(state.age),
+        title: "A Sudden Health Concern",
+        text: "You do not feel well and are not sure whether it will pass on its own or needs proper attention. Ignoring it is cheaper today, but not always cheaper overall.",
+        choices: [
+          { title: "Visit a clinic properly", detail: "Spend K900 now and recover fully.", className: "good", action: () => {
+            if (state.cash < 900) return toast("You need K900.");
+            state.cash -= 900; state.stress -= 6; state.energy += 10;
+            advanceAfterChoice("A proper check confirms it is minor and treatable. The visit costs money today but removes the worry and the risk of it becoming worse.");
+          }},
+          { title: "Wait and hope it passes", detail: "Save money now, with a real chance it gets worse and costs more later.", className: "risky", action: () => {
+            if (chance(.4)) { state.cash = Math.max(0, state.cash - 2200); state.stress += 12; state.energy -= 15; advanceAfterChoice("It does not pass on its own. The delayed, more urgent treatment ends up costing more than the early visit would have."); }
+            else { state.energy -= 5; advanceAfterChoice("This time it passes on its own. Not every risk turns into a loss, but the odds do not change next time."); }
+          }}
+        ]
+      };
+    }
+
+    function weddingInvitationEvent() {
+      return {
+        id: "wedding_invitation",
+        available: state.network >= 2,
+        chapter: chapterForAge(state.age),
+        title: "A Wedding Invitation Arrives",
+        text: "Someone in your network is getting married. Attending with a modest gift strengthens the relationship, but every social obligation also has a cost.",
+        choices: [
+          { title: "Attend with a modest gift", detail: "Spend K600. Strengthen the relationship and lower stress.", className: "good", action: () => {
+            if (state.cash < 600) return toast("You need K600.");
+            state.cash -= 600; state.network += .8; state.stress -= 4;
+            advanceAfterChoice("You celebrate with people who matter to you. A modest, thoughtful gift is remembered longer than an expensive one you could not afford.");
+          }},
+          { title: "Send apologies", detail: "Keep the cash, but the relationship cools slightly.", action: () => { state.network = Math.max(0, state.network - .2); advanceAfterChoice("You explain honestly that the budget is tight right now. Most people understand, though the connection is a little weaker."); } }
+        ]
+      };
+    }
+
+    function familySchoolFeesEvent() {
+      return {
+        id: "family_school_fees",
+        available: state.age >= 23,
+        chapter: chapterForAge(state.age),
+        title: "A Relative Needs Help With School Fees",
+        text: "A younger relative risks missing part of the school term unless someone helps with fees. You believe in education, but your own plan is not unlimited.",
+        choices: [
+          { title: "Help pay K1,200", detail: "Strengthen family trust and support the next generation's education.", className: "good", action: () => {
+            if (state.cash < 1200) return toast("You need K1,200.");
+            state.cash -= 1200; state.network += .6; state.stress -= 2;
+            advanceAfterChoice("You pay directly to the school rather than handing over cash, so the money can only be used for fees. The relative stays in school, and the trust is mutual.");
+          }},
+          { title: "Explain your own budget honestly", detail: "Protect your plan, but carry some emotional weight.", action: () => { state.stress += 3; gainSkill('academic', .2); advanceAfterChoice("You explain clearly what you can and cannot do right now, and suggest checking whether a school payment plan exists. Saying no is uncomfortable, but a clear boundary protects your own future ability to help."); } }
+        ]
+      };
+    }
+
+    function toolBreakdownEvent() {
+      return {
+        id: "tool_breakdown",
+        available: state.education.practical >= 1 || currentJob().id === "technician",
+        chapter: chapterForAge(state.age),
+        title: "Your Equipment Breaks Down",
+        text: "A tool or piece of equipment you rely on for work stops functioning properly. A proper repair costs more, but a rushed fix is unreliable.",
+        choices: [
+          { title: "Pay for a proper repair", detail: "Spend K800 and protect future income.", className: "good", action: () => {
+            if (state.cash < 800) return toast("You need K800.");
+            state.cash -= 800; gainSkill('practical', .4);
+            advanceAfterChoice("A qualified repair takes longer but is done properly. You also pick up a few things about maintaining the equipment yourself.");
+          }},
+          { title: "Attempt a cheap fix yourself", detail: "Save money now, with a real risk of a bigger failure later.", className: "risky", action: () => {
+            if (chance(.5)) { gainSkill('practical', .5); advanceAfterChoice("The improvised fix works better than expected, and you learn the mechanism well enough to trust it next time."); }
+            else { state.cash = Math.max(0, state.cash - 1500); state.stress += 6; advanceAfterChoice("The temporary fix fails at the worst moment. The final repair ends up costing more than the proper one would have."); }
+          }}
+        ]
+      };
+    }
+
+    function freelanceGigEvent() {
+      return {
+        id: "freelance_gig",
+        available: totalSkill(state) >= 3,
+        chapter: chapterForAge(state.age),
+        title: "Someone Asks for Paid Help",
+        text: "Word has spread that you know what you are doing. Someone offers to pay for a one-off piece of work — the kind of task depends on what you choose to lean on.",
+        choices: [
+          { title: "Take a hands-on repair or labour task", detail: "Earn K900. Build Practical skill.", className: "good", action: () => { state.cash += 900; state.energy -= 12; gainSkill('practical', .5); record("Took a paid practical gig"); advanceAfterChoice("You complete the task cleanly and on time. Word-of-mouth work like this often leads to more of the same."); } },
+          { title: "Take a sales or admin task", detail: "Earn K900. Build Business skill.", className: "good", action: () => { state.cash += 900; state.energy -= 8; gainSkill('business', .5); record("Took a paid business gig"); advanceAfterChoice("You organise the request clearly, price it fairly and deliver on the agreed date. Reliability matters more than flair."); } },
+          { title: "Take a tutoring or research task", detail: "Earn K900. Build Academic skill.", className: "good", action: () => { state.cash += 900; state.energy -= 10; gainSkill('academic', .5); record("Took a paid academic gig"); advanceAfterChoice("You explain the material patiently and check that it was actually understood, not just repeated back."); } },
+          { title: "You are too busy right now", detail: "Protect your time and energy.", action: () => { advanceAfterChoice("You decline for now. The person understands and says they will ask again another time."); } }
+        ]
+      };
+    }
+
+    function financialLiteracyWorkshopEvent() {
+      return {
+        id: "financial_literacy_workshop",
+        available: state.turn >= 3,
+        chapter: chapterForAge(state.age),
+        title: "A Free Financial Literacy Workshop",
+        text: "A community organisation is running a free session on budgeting, saving and avoiding common debt traps. It costs only time.",
+        choices: [
+          { title: "Attend the session", detail: "Spend the afternoon. Gain academic skill and lower stress.", className: "good", action: () => { state.energy -= 6; state.stress -= 3; gainSkill('academic', .4); record("Attended a financial literacy workshop"); advanceAfterChoice("Little of it is completely new, but hearing it explained clearly and asking questions out loud makes the habits easier to actually keep."); } },
+          { title: "Skip it and keep working instead", detail: "Earn K400 in the same time.", action: () => { state.cash += 400; state.energy -= 4; advanceAfterChoice("You choose the certain, immediate income over an uncertain long-term benefit. Both are reasonable uses of an afternoon."); } }
+        ]
+      };
+    }
+
+    function customerComplaintEvent() {
+      return {
+        id: "customer_complaint",
+        available: state.businessLevel > 0,
+        chapter: chapterForAge(state.age),
+        title: "An Angry Customer Returns",
+        text: "A customer says the product failed sooner than expected. Other people are listening. You are not certain whether the problem came from your supplier or how the item was used.",
+        choices: [
+          { title: "Replace it and investigate", detail: "Cost K700, protect trust and learn from the complaint.", className: "good", action: () => {
+            if (state.cash < 700) return toast("You need K700.");
+            state.cash -= 700; state.reputation += 4; gainSkill('business', .4); advanceAfterChoice("You replace the item, ask respectful questions and speak with the supplier. The customer leaves calmer, and others notice how you handled the problem.");
+          }},
+          { title: "Refuse and defend yourself", detail: "Keep the money, but risk your reputation.", className: "risky", action: () => { state.reputation = Math.max(0, state.reputation - 5); state.stress += 5; advanceAfterChoice("You win the argument but lose some trust. The story travels further than the original complaint."); } }
+        ]
+      };
+    }
+
+    function supplierEvent() {
+      return {
+        id: "supplier",
+        available: state.businessLevel > 0,
+        chapter: chapterForAge(state.age),
+        title: "Your Supplier Raises Prices",
+        text: "Your normal supplier announces a sudden increase. Paying it protects availability, but your profit margin will shrink. A new supplier is cheaper, although you have not tested the quality.",
+        choices: [
+          { title: "Negotiate and buy a smaller order", detail: "Spend energy, protect quality and gain business skill.", action: () => { state.energy -= 9; gainSkill('business', .6); state.reputation += 1; advanceAfterChoice("You show your sales history and negotiate a smaller, more manageable order. The margin is tight, but quality remains reliable."); } },
+          { title: "Try the cheaper supplier", detail: "Gain K2,000 now, with a quality risk.", className: "risky", action: () => {
+            state.cash += 2000;
+            if (chance(.48)) { state.reputation = Math.max(0, state.reputation - 4); state.businessBonus = Math.max(0, state.businessBonus - .03); }
+            else { gainSkill('business', .4); }
+            advanceAfterChoice("The cheaper stock improves cash flow immediately. Only time—and customer reactions—will reveal whether the saving was wise.");
+          }}
+        ]
+      };
+    }
+
+    function familyEvent() {
+      return {
+        id: "family",
+        available: true,
+        chapter: chapterForAge(state.age),
+        title: "Your Family Needs Help",
+        text: "A close family member faces an urgent expense and asks whether you can contribute. You care about them, but your own plan is still fragile.",
+        choices: [
+          { title: "Give what you can: K1,500", detail: "Reduce cash, lower stress and strengthen your support network.", action: () => {
+            if (state.cash < 1500) return toast("You do not have K1,500 available.");
+            state.cash -= 1500; state.network += .7; state.stress -= 3; advanceAfterChoice("You explain what you can afford and contribute without promising more. The help matters, and the honest boundary protects your plan.");
+          }},
+          { title: "Explain that you cannot afford it", detail: "Keep cash, but carry some emotional stress.", action: () => { state.stress += 4; gainSkill('academic', .2); advanceAfterChoice("You say no respectfully and explain your situation. It is uncomfortable, but borrowing to appear generous could create a second crisis."); } }
+        ]
+      };
+    }
+
+    function savingsGroupEvent() {
+      return {
+        id: "savings_group",
+        available: state.cash >= 1500,
+        chapter: chapterForAge(state.age),
+        title: "A Trusted Savings Group",
+        text: "People you know invite you into a small rotating savings group. Regular contributions could strengthen your discipline and relationships, but missed payments would damage trust.",
+        choices: [
+          { title: "Join with clear records", detail: "Contribute K1,500 now; receive K2,300 value and network benefit later.", className: "good", action: () => { state.cash -= 1500; state.investments += 2300; state.network += .8; state.reputation += 1; advanceAfterChoice("You join only after everyone agrees on contributions, dates and written records. The structure makes saving easier than relying on intention alone."); } },
+          { title: "Save independently", detail: "Keep flexibility and avoid group obligations.", action: () => { state.investments += 400; state.cash = Math.max(0, state.cash - 400); gainSkill('academic', .2); advanceAfterChoice("You decide that your irregular cash flow needs more flexibility. You still move a small amount out of everyday spending."); } }
+        ]
+      };
+    }
+
+    function partnershipEvent() {
+      return {
+        id: "partnership",
+        available: state.businessLevel > 0 && state.cash >= 3500,
+        chapter: chapterForAge(state.age),
+        title: "A Friend Proposes a Partnership",
+        text: "A friend wants to combine money and contacts with your business. Together you could grow faster. However, neither of you has written down roles, ownership or how disagreements will be solved.",
+        choices: [
+          { title: "Write a simple agreement first", detail: "Spend K500. Gain network, reputation and controlled growth.", className: "good", action: () => { state.cash -= 500; state.network += 1; state.reputation += 2; state.businessBonus += .04; advanceAfterChoice("You discuss ownership, responsibilities and what happens if one person leaves. The conversation is awkward—but far easier now than after money is lost."); } },
+          { title: "Trust the friendship and start immediately", detail: "Chance of a quick K8,000 gain or a K5,000 loss.", className: "risky", action: () => {
+            if (chance(.5)) { state.cash += 8000; state.network += .5; }
+            else { state.cash = Math.max(0, state.cash - 5000); state.reputation = Math.max(0, state.reputation - 2); state.stress += 8; }
+            advanceAfterChoice("You move quickly without documenting expectations. The result depends too much on assumptions that were never discussed.");
+          }}
+        ]
+      };
+    }
+
+    function rainEvent() {
+      return {
+        id: "weather",
+        available: state.businessLevel === 1,
+        chapter: chapterForAge(state.age),
+        title: "A Week of Difficult Trading",
+        text: "Bad weather reduces foot traffic and threatens some of your stock. You can protect the setup, move temporarily or accept a weak week.",
+        choices: [
+          { title: "Buy basic protection", detail: "Spend K900 and protect future income.", action: () => {
+            if (state.cash < 900) return toast("You need K900.");
+            state.cash -= 900; state.businessBonus += .025; gainSkill('business', .3); advanceAfterChoice("You protect your stock and redesign the setup so it can be moved quickly. The solution is simple, but it makes the hustle more resilient.");
+          }},
+          { title: "Accept the loss and save cash", detail: "Lose K1,400 in spoiled or unsold stock.", className: "risky", action: () => { state.cash = Math.max(0, state.cash - 1400); state.stress += 4; advanceAfterChoice("You avoid spending on equipment, but some stock is damaged and sales remain low. You make a note to prepare before the next difficult week."); } }
+        ]
+      };
+    }
+
+    function employeeEvent() {
+      return {
+        id: "employee",
+        available: state.businessLevel >= 3,
+        chapter: chapterForAge(state.age),
+        title: "You Cannot Do Every Job Yourself",
+        text: "The business is growing, but orders, records and customers now compete for your attention. A relative wants work, while an experienced candidate asks for higher pay.",
+        choices: [
+          { title: "Hire for skill and set clear targets", detail: "Spend K6,000; improve profit and reduce stress.", className: "good", action: () => {
+            if (state.cash < 6000) return toast("You need K6,000.");
+            state.cash -= 6000; state.businessBonus += .08; state.stress -= 8; state.reputation += 3; advanceAfterChoice("You choose based on the role, explain expectations and schedule regular check-ins. Delegation feels risky, but it gives you time to lead.");
+          }},
+          { title: "Keep doing everything yourself", detail: "Save money now, but lose energy and growth.", className: "risky", action: () => { state.energy -= 18; state.stress += 12; gainSkill('business', .3); advanceAfterChoice("You keep control of every task. Quality remains consistent for now, but important work begins waiting for your attention."); } }
+        ]
+      };
+    }
+
+    function socialMediaEvent() {
+      return {
+        id: "social_media",
+        available: state.businessLevel > 0,
+        chapter: chapterForAge(state.age),
+        title: "One Customer Post Gets Attention",
+        text: "A customer shares a positive photo and several people ask how to order. You can respond professionally, rush to accept everything or ignore the attention.",
+        choices: [
+          { title: "Respond with clear prices and limits", detail: "Gain customers, reputation and manageable growth.", className: "good", action: () => { const gain = 1800 * state.businessLevel; state.cash += gain; state.reputation += 4; state.network += .4; advanceAfterChoice(`You communicate clearly and only accept orders you can fulfil. The attention produces ${formatMoney(gain)} without damaging trust.`); } },
+          { title: "Accept every order immediately", detail: "Higher possible income, but a strong failure risk.", className: "risky", action: () => {
+            const gain = 3500 * state.businessLevel;
+            if (chance(.48 + totalSkill(state) * .03)) { state.cash += gain; state.reputation += 2; }
+            else { state.cash += Math.round(gain * .25); state.reputation = Math.max(0, state.reputation - 7); state.stress += 10; }
+            advanceAfterChoice("You promise more than your current system comfortably supports. The opportunity is real, but fulfilment determines whether attention becomes a business.");
+          }}
+        ]
+      };
+    }
+
+    function fakeInvestmentEvent() {
+      return {
+        id: "fake_investment", onceKey: "sawFakeInvestment", available: state.cash >= 2500,
+        chapter: chapterForAge(state.age), title: "Double Your Money in Thirty Days?",
+        text: "A confident promoter says a private investment circle guarantees 100% profit in one month. You must pay today, members receive rewards for recruiting friends, and no clear business activity is shown.",
+        notice: "The offer uses urgency, guaranteed returns and recruitment. Those are warning signs—not proof of profit.",
+        choices: [
+          { title: "Pay K5,000 before the chance disappears", detail: "The promise is huge. The documents are not.", className: "risky", action: () => { const loss = Math.min(5000, state.cash); state.cash -= loss; state.stress += 12; state.reputation = Math.max(0, state.reputation - 1); record("Lost money to a fake investment circle"); advanceAfterChoice(`The organiser pays excuses instead of returns, then disappears. You lose ${formatMoney(loss)}. The guaranteed profit was the product being sold.`); } },
+          { title: "Verify the business and source of returns", detail: "Spend K300 on transport, calls and checks. Keep your money.", className: "good", action: () => { if (state.cash >= 300) state.cash -= 300; gainSkill('academic', .8); state.reputation += 1; advanceAfterChoice("The story changes when you ask how profits are created and who regulates the activity. You walk away before paying."); } },
+          { title: "Refuse without arguing", detail: "Keep cash and protect the friendship from a recruitment fight.", action: () => { gainSkill('academic', .25); advanceAfterChoice("You decline calmly. A believable investment can explain risk, ownership and how money is earned without forcing an immediate decision."); } }
+        ]
+      };
+    }
+
+    function magicMoneyEvent() {
+      return {
+        id: "magic_money", available: state.cash >= 800,
+        chapter: chapterForAge(state.age), title: "A Man Claims He Can Multiply Your Money",
+        text: "A promoter says he knows a ritual that can turn a small bundle of cash into much more overnight. He shows messages from people who supposedly succeeded and says doubt will block the result.",
+        notice: "There is no supernatural investment return. The pressure, secrecy and blame are designed to stop you checking the claim.",
+        choices: [
+          { title: "Pay K2,000 for the ritual", detail: "A 1% chance of receiving a temporary payout from the promoter—not magic—and a 99% chance of losing the money.", className: "risky", action: () => { if (state.cash < 2000) return toast("You need K2,000."); state.cash -= 2000; if (chance(.01)) { state.cash += 3500; state.flags.magicMoneyHooked = true; state.stress += 4; advanceAfterChoice("The promoter gives you some money back and calls it proof. It is not magic; it is likely money from other victims meant to make you risk a much larger amount next time."); } else { state.stress += 10; state.reputation = Math.max(0, state.reputation - 1); record("Lost money to a magic-money claim"); advanceAfterChoice("Nothing is multiplied. The promoter says your doubt spoiled the ritual and asks for a larger second payment. You have lost the money."); } } },
+          { title: "Ask for verifiable business records", detail: "No secrecy, ritual or guaranteed return can replace evidence.", className: "good", action: () => { gainSkill('academic', .7); state.reputation += 1; advanceAfterChoice("The promoter refuses independent checks and becomes angry. You leave with your cash and a clearer understanding of manipulation."); } },
+          { title: "Walk away immediately", detail: "Keep your money and tell one trusted person what happened.", action: () => { gainSkill('academic', .25); state.network += .1; advanceAfterChoice("You refuse to let urgency, shame or supernatural claims decide your finances."); } }
+        ]
+      };
+    }
+
+    function fortuneTellerEvent() {
+      return {
+        id: "fortune_teller", available: true,
+        chapter: chapterForAge(state.age), title: "Someone Says Your Financial Luck Is Blocked",
+        text: "A fortune teller says your lack of progress comes from a hidden blockage. For a fee, the blockage can be removed and business money will begin flowing. The first fee is small, but more ceremonies may be needed.",
+        choices: [
+          { title: "Pay K900 to remove the blockage", detail: "Almost always a loss. A later good event would be coincidence, not proof.", className: "risky", action: () => { if (state.cash < 900) return toast("You need K900."); state.cash -= 900; state.stress += 5; if (chance(.01)) { state.cash += 400; advanceAfterChoice("A small unrelated sale happens later. The fortune teller claims credit, but the payment did not create the customer and you are still K500 worse off."); } else { record("Paid a fortune teller for financial luck"); advanceAfterChoice("Nothing in your income, skills or customers changes. You are told a stronger—and more expensive—ceremony is now required."); } } },
+          { title: "Review the real numbers instead", detail: "Check income, costs, debt, customers and skills.", className: "good", action: () => { gainSkill('academic', .55); state.stress -= 2; state.flags.businessRecords = state.flags.businessRecords || state.businessLevel > 0; advanceAfterChoice("You write down the real causes of the problem. The list is less comforting than magic, but every item can be acted on."); } },
+          { title: "Refuse and continue with your plan", detail: "No financial change, but no money is lost.", action: () => advanceAfterChoice("You decide that hope can support you, but financial decisions still need evidence and a practical plan.") }
+        ]
+      };
+    }
+
+    function fakeJobEvent() {
+      return {
+        id: "fake_job", onceKey: "sawFakeJob", available: currentJob().id !== "director",
+        chapter: chapterForAge(state.age), title: "A Job Offer Arrives by Message",
+        text: "A person using a well-known company logo says you have been selected without an interview. The salary is excellent, but you must send a 'registration and uniform fee' before receiving the contract.",
+        choices: [
+          { title: "Pay the K2,500 fee", detail: "Secure the position before someone else takes it.", className: "risky", action: () => { if (state.cash < 2500) return toast("You do not have K2,500."); state.cash -= 2500; state.stress += 9; record("Paid a fake recruitment fee"); advanceAfterChoice("After payment, new fees appear and the contact stops answering. A real vacancy should be verified through the employer's official contact details."); } },
+          { title: "Contact the company independently", detail: "Use an official number, not the number in the message.", className: "good", action: () => { gainSkill('academic', .65); state.network += .3; advanceAfterChoice("The company confirms that the message is not theirs. You keep the evidence and warn one friend without forwarding the scam link."); } },
+          { title: "Delete it and continue your real applications", detail: "No gain, no loss and no personal details shared.", action: () => advanceAfterChoice("You delete the message and focus on vacancies with a real application process.") }
+        ]
+      };
+    }
+
+    function fakeScholarshipEvent() {
+      return {
+        id: "fake_scholarship", onceKey: "sawFakeScholarship", available: educationRank(state) < 3,
+        chapter: chapterForAge(state.age), title: "A Full Scholarship—With a Processing Fee",
+        text: "An online page says you have won full tuition and accommodation. It asks for K1,800 today to release the award, but the institution cannot confirm the page.",
+        choices: [
+          { title: "Pay the processing fee", detail: "Risk K1,800 for a life-changing promise.", className: "risky", action: () => { if (state.cash < 1800) return toast("You need K1,800."); state.cash -= 1800; state.stress += 7; record("Paid a fake scholarship fee"); advanceAfterChoice("The award letter contains errors, the office does not exist and the contact disappears. You lose the fee but learn to verify through the institution itself."); } },
+          { title: "Ask the institution through official channels", detail: "Spend time, keep your money and learn the truth.", className: "good", action: () => { gainSkill('academic', .65); state.reputation += 1; advanceAfterChoice("The institution confirms that the page is fake. You save the official scholarship page for future applications."); } },
+          { title: "Ignore the deadline pressure", detail: "A real award should survive a reasonable verification question.", action: () => { gainSkill('academic', .2); advanceAfterChoice("You do not pay. The page disappears a few days later."); } }
+        ]
+      };
+    }
+
+    function suspiciousLandEvent() {
+      return {
+        id: "suspicious_land", onceKey: "sawSuspiciousLand", available: state.cash >= 8000,
+        chapter: chapterForAge(state.age), title: "A Very Cheap Plot Must Be Sold Today",
+        text: "A seller offers land far below the normal asking price. He has photocopies, says the original documents are 'with a relative', and refuses an independent boundary check because another buyer is waiting.",
+        choices: [
+          { title: "Pay K12,000 deposit immediately", detail: "The price may never appear again.", className: "risky", action: () => { const loss = Math.min(12000, state.cash); state.cash -= loss; state.stress += 14; record("Lost a deposit on unverified land"); advanceAfterChoice(`The seller cannot transfer ownership and stops responding. You lose ${formatMoney(loss)} and receive no land asset.`); } },
+          { title: "Pay K800 for independent verification", detail: "Check ownership, boundaries and seller identity first.", className: "good", action: () => { if (state.cash < 800) return toast("You need K800."); state.cash -= 800; gainSkill('academic', .7); state.network += .3; advanceAfterChoice("The checks reveal conflicting ownership information. The cheap price was designed to make you ignore the missing proof."); } },
+          { title: "Walk away", detail: "Keep your cash for a verified opportunity.", action: () => { state.reputation += 1; advanceAfterChoice("You refuse to treat urgency as evidence. The seller becomes angry, which confirms that questions were unwelcome."); } }
+        ]
+      };
+    }
+
+    function mobileMoneyFraudEvent() {
+      return {
+        id: "mobile_fraud", onceKey: "sawMobileFraud", available: true,
+        chapter: chapterForAge(state.age), title: "A Caller Says Your Mobile Money Is Blocked",
+        text: "A caller claims to be support staff and asks for your PIN or a confirmation code to reverse a mistaken transfer. The caller already knows your first name and sounds professional.",
+        choices: [
+          { title: "Share the code to fix it quickly", detail: "The caller says you have only two minutes.", className: "risky", action: () => { const loss = Math.min(state.cash, 4000); state.cash -= loss; state.stress += 10; record("Lost money after sharing a mobile money code"); advanceAfterChoice(`The caller uses the code to take ${formatMoney(loss)}. Genuine support should not need your secret PIN or one-time confirmation code.`); } },
+          { title: "End the call and contact support yourself", detail: "Use the official channel and protect your PIN.", className: "good", action: () => { gainSkill('academic', .7); state.reputation += 1; advanceAfterChoice("Official support confirms there was no block. You change nothing through the caller and keep your account secure."); } },
+          { title: "Ignore the call", detail: "Safe, although you miss a chance to report the number.", action: () => advanceAfterChoice("You share no information and the caller moves on.") }
+        ]
+      };
+    }
+
+    function vehicleRepairEvent() {
+      return {
+        id: "vehicle_repair", available: state.vehicle === "motorbike" || state.vehicle === "car",
+        chapter: chapterForAge(state.age), title: "Your Vehicle Develops a Problem",
+        text: "A warning noise appears. A cheap roadside fix could keep you moving today, while a proper inspection costs more but may prevent a larger failure.",
+        choices: [
+          { title: "Pay for a proper inspection", detail: `Spend ${state.vehicle === "car" ? "K3,500" : "K1,500"} and protect reliability.`, className: "good", action: () => { const cost = state.vehicle === "car" ? 3500 : 1500; if (state.cash < cost) return toast(`You need ${formatMoney(cost)}.`); state.cash -= cost; gainSkill('practical', .2); advanceAfterChoice("The mechanic finds a smaller problem before it becomes a major one. Useful assets still need maintenance money."); } },
+          { title: "Use the cheapest quick fix", detail: "Save cash now, but risk a larger breakdown.", className: "risky", action: () => { if (chance(.55)) { const loss = state.vehicle === "car" ? 8000 : 3500; state.cash = Math.max(0, state.cash - loss); state.stress += 8; advanceAfterChoice(`The temporary fix fails and the final repair costs ${formatMoney(loss)}.`); } else advanceAfterChoice("The quick fix holds this time, but you know the maintenance has only been delayed."); } }
+        ]
+      };
+    }
+
+    function rentIncreaseEvent() {
+      return {
+        id: "rent_increase", available: state.housingPlan !== "family",
+        chapter: chapterForAge(state.age), title: "Your Housing Cost Is Rising",
+        text: "Your landlord announces a rent increase. You can absorb it, negotiate, or move to a cheaper arrangement.",
+        choices: [
+          { title: "Negotiate and show reliable payment history", detail: "Use reputation and communication to reduce the increase.", action: () => { const good = chance(.45 + state.reputation * .006); state.energy -= 4; if (good) { state.reputation += 1; advanceAfterChoice("The landlord agrees to a smaller increase after you discuss payment history and maintenance clearly."); } else { state.cash = Math.max(0, state.cash - 800); state.stress += 3; advanceAfterChoice("The landlord refuses, and you pay a small transition cost while reconsidering the budget."); } } },
+          { title: "Move back to the family home", detail: "Reduce future cost, lose some privacy.", action: () => { state.housingPlan = "family"; state.stress += 2; advanceAfterChoice("You move back to the family home and explain that it is a financial step, not the end of your ambition."); } },
+          { title: "Stay and absorb the increase", detail: "Pay K1,200 now to avoid disruption.", action: () => { if (state.cash < 1200) return toast("You need K1,200."); state.cash -= 1200; state.stress -= 1; advanceAfterChoice("You value stability enough to accept the higher cost for now."); } }
+        ]
+      };
+    }
+
+    function bulkOrderEvent() {
+      return {
+        id: "bulk_order", available: state.businessLevel > 0,
+        chapter: chapterForAge(state.age), title: "A Customer Requests a Large Order",
+        text: "A new customer wants an order much larger than normal. The revenue could accelerate growth, but buying stock before confirming terms could trap your working capital.",
+        choices: [
+          { title: "Request a deposit and written order", detail: "Lower risk, moderate profit and stronger records.", className: "good", action: () => { const gain = 2200 * state.businessLevel; state.cash += gain; state.reputation += 3; gainSkill('business', .3); advanceAfterChoice(`The customer pays a deposit and you deliver in stages. The order earns ${formatMoney(gain)} without emptying your working capital.`); } },
+          { title: "Buy everything immediately", detail: "Chance of a large profit or unsold stock.", className: "risky", action: () => { const stake = 1800 * state.businessLevel; if (state.cash < stake) return toast(`You need ${formatMoney(stake)}.`); state.cash -= stake; if (chance(.52)) { const gain = stake * 2.6; state.cash += gain; state.reputation += 2; advanceAfterChoice(`The order is genuine and produces ${formatMoney(gain - stake)} profit.`); } else { state.stress += 8; advanceAfterChoice("The customer delays and stops responding. You are left with stock that must be sold slowly."); } } }
+        ]
+      };
+    }
+
+    function customerCreditEvent() {
+      return {
+        id: "customer_credit", available: state.businessLevel > 0,
+        chapter: chapterForAge(state.age), title: "A Regular Customer Wants to Pay Later",
+        text: "A familiar customer asks for goods now and promises payment after payday. Refusing may hurt the relationship; agreeing may turn sales into unpaid debt.",
+        choices: [
+          { title: "Offer a small written credit limit", detail: "Controlled risk and clear due date.", action: () => { if (chance(.75)) { state.cash += 900; state.reputation += 2; } else { state.cash = Math.max(0, state.cash - 600); } gainSkill('business', .25); advanceAfterChoice("You limit the amount, write the due date and stop further credit until payment. The system matters more than personal confidence."); } },
+          { title: "Give the full order on trust", detail: "Possible K2,500 gain or loss.", className: "risky", action: () => { if (chance(.45)) state.cash += 2500; else { state.cash = Math.max(0, state.cash - 2500); state.stress += 6; } advanceAfterChoice("You rely on the relationship without a limit. The outcome determines whether trust becomes payment—or a difficult conversation."); } },
+          { title: "Cash or mobile money only", detail: "Protect working capital, possibly lose the sale.", action: () => { state.reputation = Math.max(0, state.reputation - 1); advanceAfterChoice("You explain that the business is too small to finance customers. The sale is lost, but your stock remains protected."); } }
+        ]
+      };
+    }
+
+    function marketInspectionEvent() {
+      return {
+        id: "market_inspection", available: state.businessLevel >= 1,
+        chapter: chapterForAge(state.age), title: "A Trading Inspection",
+        text: "An official asks to see your setup and records. Clear prices, clean handling and basic records make the conversation easier.",
+        choices: [
+          { title: "Show organised records and cooperate", detail: "Best if you invested in business records.", className: "good", action: () => { if (state.flags.businessRecords) { state.reputation += 4; state.businessBonus += .015; advanceAfterChoice("Your records are simple but clear. The inspection ends with practical advice and stronger customer confidence."); } else { state.cash = Math.max(0, state.cash - 900); gainSkill('business', .4); advanceAfterChoice("Your records are incomplete. You pay a small compliance cost and receive a list of improvements."); } } },
+          { title: "Avoid the conversation", detail: "Keep trading today, risk reputation and disruption.", className: "risky", action: () => { state.reputation = Math.max(0, state.reputation - 4); state.stress += 7; advanceAfterChoice("Avoiding the issue creates more attention and uncertainty than cooperating would have."); } }
+        ]
+      };
+    }
+
+    function stockTheftEvent() {
+      return {
+        id: "stock_theft", available: state.businessLevel > 0,
+        chapter: chapterForAge(state.age), title: "Some Stock Is Missing",
+        text: "Your count does not match the cash. It could be theft, poor recording, damaged stock or simple mistakes. Accusing someone immediately may destroy trust.",
+        choices: [
+          { title: "Count, document and improve controls", detail: "Spend K700, gain skill and prevent repeat losses.", className: "good", action: () => { if (state.cash < 700) return toast("You need K700."); state.cash -= 700; gainSkill('business', .5); state.flags.businessRecords = true; state.businessBonus += .015; advanceAfterChoice("You compare purchases, sales and remaining stock. The problem is a mixture of weak recording and small losses, so you improve the system."); } },
+          { title: "Accuse the newest helper", detail: "Fast response, but high risk of being wrong.", className: "risky", action: () => { state.reputation = Math.max(0, state.reputation - 4); state.stress += 6; advanceAfterChoice("The accusation spreads before the evidence is clear. Even if stock was stolen, the way you handled it damages trust."); } },
+          { title: "Ignore the difference", detail: "Save time now, lose K1,500 in continued leakage.", action: () => { state.cash = Math.max(0, state.cash - 1500); advanceAfterChoice("The missing amount grows because the cause remains unknown."); } }
+        ]
+      };
+    }
+
+    function communityContractEvent() {
+      return {
+        id: "community_contract", available: totalSkill(state) >= 2 || state.businessLevel > 0,
+        chapter: chapterForAge(state.age), title: "A Small Community Contract",
+        text: "A school, church group or local organisation needs a small service or supply. The budget is modest, but successful delivery could create references and repeat work.",
+        choices: [
+          { title: "Price it carefully and deliver in stages", detail: "Earn K2,800, reputation and a strong reference.", className: "good", action: () => { state.cash += 2800; state.reputation += 4; state.network += .6; state.energy -= 8; advanceAfterChoice("You confirm the scope, costs and delivery date before beginning. The project is small, but the reference is valuable."); } },
+          { title: "Quote very low to guarantee the job", detail: "Win the work, but risk losing money and energy.", className: "risky", action: () => { state.cash += 700; state.energy -= 17; state.stress += 6; state.reputation += 1; advanceAfterChoice("You win the job, but the price barely covers the work. The lesson is that revenue is not the same as profit."); } },
+          { title: "Decline because the project is too small", detail: "Protect time, miss the relationship.", action: () => { state.energy += 3; advanceAfterChoice("You keep your schedule open. The decision is reasonable, although a future opportunity may go to someone who built the relationship."); } }
+        ]
+      };
+    }
+
+    function renderScene(scene) {
+      currentScene = scene;
+      $("chapterText").textContent = scene.chapter || chapterForAge(state.age);
+      $("sceneTitle").textContent = scene.title;
+      $("sceneText").textContent = scene.text;
+      const notice = $("sceneNotice");
+      if (scene.notice) {
+        notice.textContent = scene.notice;
+        notice.classList.remove("hidden");
+      } else {
+        notice.classList.add("hidden");
+      }
+      $("choiceList").innerHTML = "";
+      scene.choices.forEach((choice, index) => {
+        const btn = document.createElement("button");
+        btn.className = `choice-btn ${choice.className || ""}`;
+        btn.disabled = Boolean(choice.disabled);
+        btn.innerHTML = `<strong>${choice.title}</strong><small>${choice.detail || ""}</small>`;
+        btn.addEventListener("click", () => {
+          const sceneBeforeAction = currentScene;
+          document.querySelectorAll(".choice-btn").forEach(b => b.disabled = true);
+          try {
+            choice.action();
+            if (currentScene === sceneBeforeAction && $("gameScreen").classList.contains("active")) {
+              renderScene(sceneBeforeAction);
+            }
+          }
+          catch (error) {
+            console.error(error);
+            toast("Something went wrong. Your game was not advanced.");
+            renderScene(currentScene);
+          }
+        });
+        $("choiceList").appendChild(btn);
+      });
+      updateHUD();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateHUD() {
+      if (!state) return;
+      const worth = netWorth();
+      $("ageValue").textContent = state.age;
+      $("cashValue").textContent = formatMoney(state.cash);
+      $("worthValue").textContent = formatMoney(worth);
+      $("quarterValue").textContent = `Q${state.quarter}`;
+      const progress = lifeOptionsScore();
+      $("millionProgress").style.width = `${progress}%`;
+      $("millionProgressText").textContent = `${progress}/100`;
+      $("energyValue").textContent = state.energy;
+      $("skillValue").textContent = Math.round(totalSkill(state) * 10) / 10;
+      $("networkValue").textContent = state.network;
+      $("stressValue").textContent = state.stress;
+      $("energyBar").style.width = `${state.energy}%`;
+      $("skillBar").style.width = `${Math.min(100, totalSkill(state) * 10)}%`;
+      $("networkBar").style.width = `${state.network * 10}%`;
+      $("stressBar").style.width = `${state.stress}%`;
+      const edu = educationSummaryText(state);
+      $("educationValue").textContent = state.studying ? `${edu} · studying ${educationTracks[state.studying.track].levels.find(l => l.id === state.studying.id).name}` : edu;
+      $("practicalSkillValue").textContent = (Math.round(state.skills.practical * 10) / 10).toFixed(1);
+      $("businessSkillValue").textContent = (Math.round(state.skills.business * 10) / 10).toFixed(1);
+      $("academicSkillValue").textContent = (Math.round(state.skills.academic * 10) / 10).toFixed(1);
+      $("jobValue").textContent = currentJob().name;
+      $("businessValue").textContent = state.businessLevel ? `${currentBusiness().name} · ${state.businessType || "Business"}` : "None";
+      const fp = currentFoodPlan();
+      $("foodValue").textContent = `${fp.name} · ${formatMoney(fp.cost)}/qtr · ${fp.energy >= 0 ? "+" : ""}${fp.energy} energy`;
+      const hp = currentHousingPlan();
+      $("housingValue").textContent = `${hp.name} · ${formatMoney(hp.cost)}/qtr`;
+      $("vehicleValue").textContent = currentVehicle().name;
+      $("landValue").textContent = state.landPlots ? `${state.landPlots} plot(s) · ${formatMoney(landAssetValue())}` : "None";
+      $("debtValue").textContent = formatMoney(state.debt);
+      $("unpaidBillsValue").textContent = formatMoney(state.unpaidBills || 0);
+      $("creditValue").textContent = `${creditworthiness()}/100`;
+      $("reputationValue").textContent = state.reputation;
+    }
+
+    function growInvestmentsAnnually() {
+      if (state.quarter === 1) {
+        if (state.investments > 0) state.investments = Math.round(state.investments * 1.055);
+        if (state.landValue > 0) state.landValue = Math.round(state.landValue * 1.06);
+      }
+    }
+
+    function checkEnding() {
+      growInvestmentsAnnually();
+      if (state.age >= MAX_AGE) {
+        const options = lifeOptionsScore();
+        const income = estimatedQuarterlyIncome();
+        const costs = estimatedQuarterlyCosts();
+        if ((state.unpaidBills || 0) > 0 || (state.debt > Math.max(30000, income * 5) && income < costs)) finishGame("debt_rebuild");
+        else if (options >= 75) finishGame("many_doors");
+        else if (state.businessLevel >= 3 && options >= 58) finishGame("independent_builder");
+        else if (educationRank(state) >= 2 && currentJob().id !== "none" && options >= 58) finishGame("skilled_stable");
+        else if (state.energy >= 55 && state.stress <= 55 && options >= 45) finishGame("balanced_foundation");
+        else finishGame("still_finding_path");
+        return true;
+      }
+      return false;
+    }
+
+    function finishGame(type) {
+      const endings = {
+        many_doors: { icon: "🗝️", title: "Many Doors Are Open", text: `At age ${state.age}, you have built several real options. You can change jobs, continue education, grow a business or use your savings without one setback deciding everything. Wealth helped, but skills, trust and manageable obligations created the freedom.` },
+        skilled_stable: { icon: "🎓", title: "Skilled and Stable", text: `At age ${state.age}, education and steady work have created a reliable platform. You may not be rich, but you have income, recognised skills and more power to choose your next step.` },
+        independent_builder: { icon: "🛠️", title: "Independent Builder", text: `At age ${state.age}, you turned uncertain trading into a more organised operation. The path was not magic or instant wealth; it required customers, records, reinvestment and surviving weak quarters.` },
+        balanced_foundation: { icon: "🌿", title: "A Balanced Foundation", text: `At age ${state.age}, you protected your health and relationships while building useful skills and financial stability. Your life still has limits, but it also has room to choose.` },
+        debt_rebuild: { icon: "🧱", title: "Time to Rebuild", text: `At age ${state.age}, debt and unpaid costs are restricting your choices. This is not a moral failure or a permanent ending. The lesson is that expensive borrowing, unstable income and repeated shortfalls can remove freedom faster than one lucky gain can restore it.` },
+        still_finding_path: { icon: "🧭", title: "Still Finding Your Path", text: `At age ${state.age}, some choices created progress and others created delays. You have learned that success is not one number. A different balance of education, work, business, borrowing and wellbeing could open more doors next time.` }
+      };
+      state.ending = type;
+      saveGame(false);
+      const end = endings[type] || endings.still_finding_path;
+      $("resultIcon").textContent = end.icon;
+      $("resultTitle").textContent = end.title;
+      $("resultText").textContent = end.text;
+      $("resultSummary").innerHTML = [
+        ["Life options", `${lifeOptionsScore()}/100`],
+        ["Bank trust", `${creditworthiness()}/100`],
+        ["Final net worth", formatMoney(netWorth())],
+        ["Estimated quarterly balance", formatMoney(estimatedQuarterlyIncome() - estimatedQuarterlyCosts())],
+        ["Cash", formatMoney(state.cash)],
+        ["Business", currentBusiness().name],
+        ["Job", currentJob().name],
+        ["Education", educationSummaryText(state)],
+        ["Vehicle", currentVehicle().name],
+        ["Land", `${state.landPlots} plot(s) · ${formatMoney(landAssetValue())}`],
+        ["Savings / investments", formatMoney(state.investments)],
+        ["Debt", formatMoney(state.debt)],
+        ["Unpaid bills", formatMoney(state.unpaidBills || 0)],
+        ["Energy / Stress", `${state.energy} / ${state.stress}`]
+      ].map(([label, value]) => `<div class="summary-row"><span>${label}</span><strong>${value}</strong></div>`).join("");
+      showScreen("endScreen");
+    }
+
+    function saveGame(showMessage = true) {
+      if (!state) return;
+      try {
+        gameStorage.setItem(SAVE_KEY, JSON.stringify(state));
+        if (showMessage) toast("Game saved on this device.");
+        $("continueBtn").disabled = false;
+      } catch (error) {
+        console.error(error);
+        if (showMessage) toast("This browser could not save the game.");
+      }
+    }
+
+    function loadGame() {
+      try {
+        const raw = gameStorage.getItem(SAVE_KEY);
+        if (!raw) { toast("No saved game was found on this device."); return; }
+        state = JSON.parse(raw);
+        normalizeLoadedState();
+        if (state.ending) {
+          finishGame(state.ending);
+        } else {
+          showScreen("gameScreen");
+          renderScene(buildQuarterScene());
+          updateHUD();
+          toast("Saved game loaded.");
+        }
+      } catch (error) {
+        console.error(error);
+        toast("The saved game could not be read.");
+      }
+    }
+
+    function normalizeLoadedState() {
+      // Migrate older saves: a single "skill" number becomes three skill types,
+      // and a single flat "education" id becomes a rank per track.
+      if (state && typeof state.education === "string") {
+        const legacyRank = { grade12: 0, short: 1, tevet: 2, diploma: 3, degree: 4 };
+        const rank = Math.min(3, legacyRank[state.education] ?? 0);
+        state.education = { practical: rank, business: rank, academic: rank };
+      }
+      if (state && typeof state.skill === "number") {
+        const third = state.skill / 3;
+        state.skills = { practical: third, business: third, academic: third };
+        delete state.skill;
+      }
+      if (state && state.studying && !state.studying.track) {
+        // Old in-progress courses used ids from a single flat list that no longer
+        // exists. Refund is not tracked separately in this simplified game, so the
+        // safest migration is to end the course; the player can re-enrol immediately.
+        state.studying = null;
+      }
+      const defaults = createInitialState(state?.name || "Player", state?.background || "focused");
+      state = { ...defaults, ...state, skills: { ...defaults.skills, ...(state.skills || {}) }, education: { ...defaults.education, ...(state.education || {}) }, flags: { ...defaults.flags, ...(state.flags || {}) }, history: Array.isArray(state.history) ? state.history : [], recentEvents: Array.isArray(state.recentEvents) ? state.recentEvents : [] };
+      state.version = 3;
+      // Migrate milestone flags from the v1.0 naming bug that could repeat the same scene forever.
+      if (state.flags.mobile) state.flags.mobileMoneyLesson = true;
+      if (state.flags.registration) state.flags.registrationLesson = true;
+      if (state.flags.education_check) state.flags.educationCheck = true;
+      if (state.flags.investment) state.flags.investmentLesson = true;
+      if (["millionaire", "major_success", "strong_foundation", "still_climbing", "debt"].includes(state.ending)) state.ending = null;
+      state.version = 3;
+      normalizeState();
+    }
+
+    function restartGame() {
+      if (!confirm("Restart this life? Your current save will be replaced.")) return;
+      gameStorage.removeItem(SAVE_KEY);
+      state = null;
+      selectedBackground = null;
+      $("playerName").value = "";
+      renderBackgrounds();
+      validateSetup();
+      showScreen("setupScreen");
+    }
+
+    function copyResult() {
+      const text = `Zambia: Road to Success — Test Result
+Ending: ${$("resultTitle").textContent}
+Age: ${state.age}
+Life options: ${lifeOptionsScore()}/100
+Bank trust: ${creditworthiness()}/100
+Net worth: ${formatMoney(netWorth())}
+Cash: ${formatMoney(state.cash)}
+Debt: ${formatMoney(state.debt)}
+Unpaid bills: ${formatMoney(state.unpaidBills || 0)}
+Education: ${educationSummaryText(state)}
+Job: ${currentJob().name}
+Business: ${currentBusiness().name}
+Food/Housing: ${currentFoodPlan().name} / ${currentHousingPlan().name}
+Vehicle: ${currentVehicle().name}
+Land: ${state.landPlots} plot(s), ${formatMoney(landAssetValue())}
+Energy/Stress: ${state.energy}/${state.stress}
+
+Feedback: Which choice felt most realistic? Was borrowing clear? Did the hustle feel too easy or too hard? What was confusing? Would you play again?`;
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => toast("Result copied. Send it to the game creator.")).catch(() => fallbackCopy(text));
+      } else fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand("copy"); toast("Result copied."); }
+      catch { toast("Copy was blocked. Take a screenshot instead."); }
+      area.remove();
+    }
+
+    $("newGameBtn").addEventListener("click", () => { selectedBackground = null; renderBackgrounds(); validateSetup(); showScreen("setupScreen"); });
+    $("continueBtn").addEventListener("click", loadGame);
+    $("backHomeBtn").addEventListener("click", () => showScreen("homeScreen"));
+    $("playerName").addEventListener("input", validateSetup);
+    $("beginBtn").addEventListener("click", startNewGame);
+    $("saveBtn").addEventListener("click", () => saveGame(true));
+    $("restartBtn").addEventListener("click", restartGame);
+    $("playAgainBtn").addEventListener("click", restartGame);
+    $("copyResultBtn").addEventListener("click", copyResult);
+    $("helpBtn").addEventListener("click", () => $("helpModal").classList.add("open"));
+    $("closeHelpBtn").addEventListener("click", () => $("helpModal").classList.remove("open"));
+    $("helpModal").addEventListener("click", e => { if (e.target === $("helpModal")) $("helpModal").classList.remove("open"); });
+
+    renderBackgrounds();
+    $("continueBtn").disabled = !gameStorage.getItem(SAVE_KEY);
+
+    const fileNote = $("iphoneFileNote");
+    if (fileNote && location.protocol !== "file:") {
+      fileNote.innerHTML = "<strong>iPhone test version</strong>This game is open in a browser. You can play immediately. Use Safari’s Share menu and Add to Home Screen if available.";
+    }
+  </script>
+</body>
+</html>
