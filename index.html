@@ -490,6 +490,7 @@
           <div class="summary-row"><span>💼 Business skill</span><strong id="businessSkillValue">0.3</strong></div>
           <div class="summary-row"><span>📖 Academic skill</span><strong id="academicSkillValue">0.3</strong></div>
           <div class="summary-row"><span>Job</span><strong id="jobValue">Unemployed</strong></div>
+          <div class="summary-row"><span>Pension (NAPSA)</span><strong id="pensionValue">K0</strong></div>
           <div class="summary-row"><span>Business</span><strong id="businessValue">None</strong></div>
           <div class="summary-row"><span>Food plan</span><strong id="foodValue">Basic home meals</strong></div>
           <div class="summary-row"><span>Housing</span><strong id="housingValue">Family home</strong></div>
@@ -660,7 +661,10 @@
     ];
 
     function currentFoodPlan() { return foodPlans.find(p => p.id === state.foodPlan) || foodPlans[0]; }
-    function currentHousingPlan() { return housingPlans.find(p => p.id === state.housingPlan) || housingPlans[0]; }
+    function currentHousingPlan() {
+      if (state.ownsHome) return { id: "owned", name: "Your Own Home", cost: 300, stress: -4, network: .1, text: "You built and own this home outright. Only light maintenance remains — no more rent." };
+      return housingPlans.find(p => p.id === state.housingPlan) || housingPlans[0];
+    }
     function currentVehicle() { return vehicles.find(v => v.id === state.vehicle) || vehicles[0]; }
     function landAssetValue() { return Math.max(0, Math.round(state.landValue || 0)); }
 
@@ -668,6 +672,43 @@
     // customers) and Academic (study, research and financial judgement). totalSkill()
     // keeps everything that used to read one generic "skill" working the same way,
     // since it is simply the sum of however that experience got distributed.
+    function calculateTaxAndPension(grossQuarterly) {
+      if (grossQuarterly <= 0) return { napsa: 0, paye: 0, net: 0 };
+      const napsaCap = 5580; // ~K1,860/month cap (2026 NAPSA ceiling), x3 for a quarter
+      const napsa = Math.min(grossQuarterly * .05, napsaCap);
+      const taxable = Math.max(0, grossQuarterly - napsa);
+      const bands = [
+        { upTo: 15300, rate: 0 },   // K5,100/month tax-free, x3
+        { upTo: 21300, rate: .20 }, // K7,100/month, x3
+        { upTo: 27600, rate: .30 }, // K9,200/month, x3
+        { upTo: Infinity, rate: .37 }
+      ];
+      let paye = 0, lower = 0;
+      for (const band of bands) {
+        if (taxable > lower) {
+          paye += (Math.min(taxable, band.upTo) - lower) * band.rate;
+          lower = band.upTo;
+        } else break;
+      }
+      return { napsa: Math.round(napsa), paye: Math.round(paye), net: Math.round(grossQuarterly - napsa - paye) };
+    }
+
+    function visibleSuccessScore(s) {
+      // A rough 0–10 measure of how visibly successful someone looks to family and community —
+      // used to scale how much they are expected to contribute, mirroring real "black tax" dynamics.
+      let score = 0;
+      score += Math.min(4, (currentJobSalaryFor(s) / 20000));
+      score += Math.min(3, (s.businessLevel || 0) * .8);
+      if (s.ownsHome) score += 1.5;
+      if ((s.landDevelopments && (s.landDevelopments.rental || s.landDevelopments.airbnb))) score += 1.5;
+      score += Math.min(1.5, (s.reputation || 0) * .03);
+      return Math.max(0, Math.min(10, score));
+    }
+    function currentJobSalaryFor(s) {
+      const job = jobs.find(j => j.id === s.job) || jobs[0];
+      return job.salary || 0;
+    }
+
     function totalSkill(s) { return (s.skills.practical || 0) + (s.skills.business || 0) + (s.skills.academic || 0); }
     function gainSkill(type, amount) {
       if (!amount) return;
@@ -724,12 +765,14 @@
     }
     function currentJob() { return jobs.find(j => j.id === state.job) || jobs[0]; }
     function currentBusiness() { return businesses[state.businessLevel] || businesses[0]; }
-    function netWorth() { return Math.round(state.cash + currentBusiness().value + state.investments + landAssetValue() + currentVehicle().value - state.debt - (state.unpaidBills || 0)); }
+    function netWorth() { return Math.round(state.cash + currentBusiness().value + state.investments + landAssetValue() + currentVehicle().value + (state.pensionPot || 0) - state.debt - (state.unpaidBills || 0)); }
 
     function estimatedQuarterlyIncome() {
-      const jobIncome = currentJob().salary || 0;
+      const jobIncome = calculateTaxAndPension(currentJob().salary || 0).net;
       const businessIncome = state.businessLevel > 0 ? Math.max(0, currentBusiness().profit * 0.55) : 0;
-      return Math.round(jobIncome + businessIncome + (state.landIncome || 0));
+      const gross = jobIncome + businessIncome + (state.landIncome || 0);
+      const familyCost = state.familyObligationRate ? gross * state.familyObligationRate : 0;
+      return Math.round(gross - familyCost);
     }
 
     function estimatedQuarterlyCosts() {
@@ -849,6 +892,12 @@
         landPlots: 0,
         landValue: 0,
         landIncome: 0,
+        landTypesOwned: [],
+        landDevelopments: { house: 0, rental: 0, airbnb: 0, farm: 0 },
+        farmVentures: { chickens: false, goats: false, pigs: false, vegetables: false },
+        ownsHome: false,
+        pensionPot: 0,
+        familyObligationRate: 0,
         recentEvents: [],
         flags: {},
         history: [],
@@ -980,9 +1029,12 @@
       const food = currentFoodPlan();
       const housing = currentHousingPlan();
       const vehicle = currentVehicle();
-      let salary = job.salary;
-      if (state.studying) salary *= .75;
-      if (state.energy < 25) salary *= .85;
+      let grossSalary = job.salary;
+      if (state.studying) grossSalary *= .75;
+      if (state.energy < 25) grossSalary *= .85;
+      const tax = calculateTaxAndPension(grossSalary);
+      let salary = tax.net;
+      if (job.id !== "none") state.pensionPot = (state.pensionPot || 0) + tax.napsa * 2; // employee + matched employer contribution
 
       const businessProfit = rollBusinessProfit(business, vehicle);
       const ageCost = Math.floor((state.age - 18) / 4) * 250;
@@ -991,10 +1043,12 @@
       const transportCost = vehicle.upkeep;
       const assetIncome = Math.round(state.landIncome || 0);
       const debtInterest = state.debt > 0 ? Math.max(100, state.debt * (state.debtRate || .035)) : 0;
+      const familyObligationCost = state.familyObligationRate ? Math.round((salary + Math.max(0, businessProfit)) * state.familyObligationRate) : 0;
       const income = Math.round(salary + businessProfit + assetIncome);
-      const costs = Math.round(foodCost + housingCost + transportCost + debtInterest);
+      const costs = Math.round(foodCost + housingCost + transportCost + debtInterest + familyObligationCost);
       state.cash += income - costs;
       state.totalIncome += Math.max(0, income);
+      if (familyObligationCost > 0) gainNetwork(.1);
 
       if (state.cash > 0 && (state.unpaidBills || 0) > 0) {
         const catchUp = Math.min(state.cash, state.unpaidBills);
@@ -1008,7 +1062,8 @@
       gainNetwork(housing.network + vehicle.network);
 
       state.lastFinance = {
-        salary: Math.round(salary), businessProfit: Math.round(businessProfit), assetIncome,
+        grossSalary: Math.round(grossSalary), paye: tax.paye, napsa: tax.napsa,
+        salary: Math.round(salary), businessProfit: Math.round(businessProfit), assetIncome, familyObligationCost,
         foodCost, housingCost, transportCost, debtInterest: Math.round(debtInterest),
         livingCost: Math.round(foodCost + housingCost + transportCost), net: income - costs
       };
@@ -1189,7 +1244,9 @@
         choices.push({ title: "Do a weekend paid task", detail: "Earn K1,800, gain experience, but reduce recovery time.", action: () => { state.cash += 1800; gainSkill(skillType, .25); state.energy -= 15; state.stress += 5; advanceAfterChoice("You complete a weekend task for someone in your network. It brings extra cash and a useful reference."); } });
       }
       choices.push(backChoice());
-      renderScene({ id: "career_menu", chapter: chapterForAge(state.age), title: "Work & Career", text: `Current position: ${job.name}. Stable income matters, but career growth usually requires evidence of skill, reliability and relationships.`, choices });
+      const netThisJob = job.id === "none" ? 0 : calculateTaxAndPension(job.salary).net;
+      const taxNote = job.salary > 15300 ? ` After PAYE tax and NAPSA pension (5%, matched by the employer), take-home is about ${formatMoney(netThisJob)}/quarter.` : job.id !== "none" ? " This salary is below the tax-free threshold, so no PAYE applies." : "";
+      renderScene({ id: "career_menu", chapter: chapterForAge(state.age), title: "Work & Career", text: `Current position: ${job.name}. Stable income matters, but career growth usually requires evidence of skill, reliability and relationships.${taxNote}`, choices });
     }
 
     function educationMenuScene() {
@@ -1256,7 +1313,8 @@
       ];
       if (state.debt > 0) choices.push({ title: "Repay part of your debt", detail: `Pay up to K5,000. Current debt: ${formatMoney(state.debt)}.`, className: "good", action: repayDebt });
       choices.push(backChoice());
-      renderScene({ id: "budget_menu", chapter: chapterForAge(state.age), title: "Money & Household Budget", text: `Your current regular quarterly household costs are about ${formatMoney(f.cost + h.cost + v.upkeep)} before debt interest. Estimated income is ${formatMoney(estimatedQuarterlyIncome())}. Bank trust is ${creditworthiness()}/100. A cheaper life protects cash; a better-supported life can protect energy and focus.`, choices });
+      const obligationNote = state.familyObligationRate ? ` You have committed to giving about ${Math.round(state.familyObligationRate * 100)}% of your income to family and community support each quarter.` : "";
+      renderScene({ id: "budget_menu", chapter: chapterForAge(state.age), title: "Money & Household Budget", text: `Your current regular quarterly household costs are about ${formatMoney(f.cost + h.cost + v.upkeep)} before debt interest. Estimated income is ${formatMoney(estimatedQuarterlyIncome())}. Bank trust is ${creditworthiness()}/100. A cheaper life protects cash; a better-supported life can protect energy and focus.${obligationNote}`, choices });
     }
 
     function foodPlanScene() {
@@ -1266,6 +1324,10 @@
     }
 
     function housingPlanScene() {
+      if (state.ownsHome) {
+        renderScene({ id: "housing_plan", chapter: chapterForAge(state.age), title: "Choose Your Housing", text: "You own your home outright. There is no rent to choose between anymore — only the light maintenance cost you already pay each quarter.", choices: [backChoice()] });
+        return;
+      }
       const choices = housingPlans.map(plan => ({ title: `${plan.name} · ${formatMoney(plan.cost)}/quarter`, detail: `${plan.text} (${plan.stress >= 0 ? "+" : ""}${plan.stress} stress, ${plan.network >= 0 ? "+" : ""}${plan.network} network per quarter)`, className: plan.id === state.housingPlan ? "good" : "", action: () => { state.housingPlan = plan.id; record(`Changed housing to ${plan.name}`); advanceAfterChoice(`You reorganise your living situation around the “${plan.name}” option. The cost and daily pressure will now change.`); } }));
       choices.push(backChoice());
       renderScene({ id: "housing_plan", chapter: chapterForAge(state.age), title: "Choose Your Housing", text: "Housing changes more than rent. Privacy, family obligations, transport and emotional support all affect the plan.", choices });
@@ -1342,14 +1404,141 @@
       return { id: "financial_crisis", chapter: chapterForAge(state.age), title: "The Quarter Ended With Unpaid Bills", text: `You could not cover ${formatMoney(shortfall)}. This is not an automatic game over. You must now decide whether to cut costs, use assets, ask for help or borrow. Bank trust is ${score}/100, so not every loan is available.`, notice: "Borrowing solves a timing problem only when future income can realistically cover both normal costs and interest.", choices };
     }
 
+    function undevelopedPlots() {
+      const used = (state.landDevelopments.house || 0) + (state.landDevelopments.rental || 0) + (state.landDevelopments.airbnb || 0) + (state.landDevelopments.farm || 0);
+      return Math.max(0, (state.landPlots || 0) - used);
+    }
+
+    const landDevelopmentTypes = [
+      { id: "house", name: "Build Your Own House", cost: 35000, maintenance: 300, text: "You stop paying rent entirely and live in a home you own. Building takes savings up front, but removes your housing cost for the rest of the game.", once: true },
+      { id: "rental", name: "Build Rental Units for Local Tenants", cost: 45000, income: 3200, maintenance: 500, riskChance: .15, riskText: "a bad tenant or long vacancy", text: "A small block of rooms rented to local families. Steady demand, modest rent, and occasional problem tenants." },
+      { id: "airbnb", name: "Build a Guest House (Airbnb-style)", cost: 80000, income: 6500, maintenance: 1200, riskChance: .3, riskText: "a slow tourist season", requiresTypes: ["verified", "titled_growth"], text: "Furnished units marketed to tourists and short-term visitors online. Higher income ceiling, higher running costs, and it only works in an area guests trust — a fully titled or verified plot." },
+      { id: "farm", name: "Set Up a Working Farm", cost: 8000, maintenance: 0, text: "Basic fencing, water access and tools. This does not itself make money, but it unlocks livestock and crops on this plot.", unlocksFarm: true }
+    ];
+
+    const farmVentureTypes = [
+      { id: "chickens", name: "Chickens (broilers & layers)", cost: 2500, income: 1400, maintenance: 600, riskChance: .15, riskText: "disease moving through the flock", text: "Eggs and birds sold locally. Fast turnover, but disease can spread quickly through a flock." },
+      { id: "goats", name: "Goats", cost: 4000, income: 1100, maintenance: 400, riskChance: .08, riskText: "losing an animal to illness or theft", text: "Sold for meat and milk. Hardy animals, lower risk, but slower to multiply." },
+      { id: "pigs", name: "Pigs", cost: 5500, income: 2200, maintenance: 900, riskChance: .1, riskText: "disease or feed costs rising", text: "Strong returns, but pigs eat a lot, so feed cost is the main risk to the margin." },
+      { id: "vegetables", name: "Vegetable Garden", cost: 1800, income: 900, maintenance: 350, riskChance: .2, riskText: "poor rains or pests", text: "Tomatoes, rape and onions for the local market. Cheapest to start, but the most exposed to weather." }
+    ];
+
+    function landDevelopScene() {
+      const free = undevelopedPlots();
+      if (free <= 0) {
+        renderScene({ id: "land_develop", chapter: chapterForAge(state.age), title: "Develop Land", text: "Every plot you own already has a use. Buy another plot first if you want to develop further.", choices: [backChoice()] });
+        return;
+      }
+      const choices = landDevelopmentTypes.map(d => {
+        const already = d.once && (state.landDevelopments[d.id] || 0) > 0;
+        const typeLocked = d.requiresTypes && !state.landDevelopments[`_hasType_${d.id}`];
+        const locked = already ? "Already built." : (d.requiresTypes ? checkPlotTypeAvailable(d) : "");
+        return {
+          title: `${d.name} · ${formatMoney(d.cost)}`,
+          detail: locked || `${d.text}${d.income ? ` About ${formatMoney(d.income)}/quarter income, ${formatMoney(d.maintenance)}/quarter maintenance.` : d.maintenance ? ` ${formatMoney(d.maintenance)}/quarter maintenance.` : ""}${d.riskChance ? ` (about ${Math.round(d.riskChance * 100)}% chance of ${d.riskText})` : ""}`,
+          className: locked ? "" : (d.riskChance ? "risky" : "good"),
+          disabled: Boolean(locked),
+          action: () => developPlotAs(d)
+        };
+      });
+      choices.push(backChoice());
+      renderScene({ id: "land_develop", chapter: chapterForAge(state.age), title: "Develop Land", text: `You have ${free} undeveloped plot(s). Each plot can only be used one way — choose based on whether you want to live on it, rent it out, or farm it.`, choices });
+    }
+
+    function checkPlotTypeAvailable(d) {
+      // Simplified in this game: Airbnb needs a plot bought as verified or titled land at some point.
+      const ok = (state.landTypesOwned || []).some(t => d.requiresTypes.includes(t));
+      return ok ? "" : "Locked: needs a Verified or Titled plot (Customary/Farm plots are not trusted enough by guests).";
+    }
+
+    function developPlotAs(d) {
+      if (undevelopedPlots() <= 0) return toast("You have no undeveloped plot left.");
+      if (d.requiresTypes) {
+        const ok = (state.landTypesOwned || []).some(t => d.requiresTypes.includes(t));
+        if (!ok) return toast("You need a Verified or Titled plot for this.");
+      }
+      if (state.cash < d.cost) return toast(`You need ${formatMoney(d.cost)}.`);
+      state.cash -= d.cost;
+      state.landDevelopments[d.id] = (state.landDevelopments[d.id] || 0) + 1;
+      if (d.id === "house") {
+        state.ownsHome = true;
+        state.stress -= 6;
+        state.reputation += 2;
+        record("Built own house");
+        advanceAfterChoice("You build a modest home on your own land. It takes most of your savings, but rent stops being a quarterly cost for the rest of your life.");
+        return;
+      }
+      if (d.unlocksFarm) {
+        gainSkill('practical', .3);
+        record("Set up a working farm plot");
+        advanceAfterChoice("You fence the plot, arrange water access and prepare the ground. The land is now ready for livestock or crops.");
+        return;
+      }
+      let riskHit = false;
+      if (d.riskChance && chance(d.riskChance)) {
+        riskHit = true;
+        state.landIncome += Math.round((d.income - d.maintenance) * .4);
+        state.stress += 6;
+      } else {
+        state.landIncome += (d.income - d.maintenance);
+      }
+      gainSkill('business', .4);
+      state.reputation += 1;
+      record(`Built ${d.name}`);
+      advanceAfterChoice(riskHit
+        ? `You build the ${d.name.toLowerCase()}, but ${d.riskText} cuts into the first year's returns. The investment still pays out, just less than planned.`
+        : `You build the ${d.name.toLowerCase()}. After maintenance, it adds steady income every quarter from now on.`);
+    }
+
+    function farmVenturesScene() {
+      const hasFarmPlot = (state.landDevelopments.farm || 0) > 0;
+      if (!hasFarmPlot) {
+        renderScene({ id: "farm_ventures", chapter: chapterForAge(state.age), title: "Livestock & Crops", text: "You need a plot set up as a working farm before you can add livestock or crops. Develop a plot as a farm first.", choices: [backChoice()] });
+        return;
+      }
+      const choices = farmVentureTypes.map(v => {
+        const owned = state.farmVentures[v.id];
+        return {
+          title: `${v.name} · ${formatMoney(v.cost)}`,
+          detail: owned ? "Already running on your farm." : `${v.text} About ${formatMoney(v.income)}/quarter income, ${formatMoney(v.maintenance)}/quarter maintenance. (about ${Math.round(v.riskChance * 100)}% chance of ${v.riskText})`,
+          className: owned ? "" : "risky",
+          disabled: owned,
+          action: () => investInFarmVenture(v)
+        };
+      });
+      choices.push(backChoice());
+      renderScene({ id: "farm_ventures", chapter: chapterForAge(state.age), title: "Livestock & Crops", text: "You can combine several kinds of livestock and crops on the same farm plot. Spreading across a few reduces the damage if one fails.", choices });
+    }
+
+    function investInFarmVenture(v) {
+      if (state.farmVentures[v.id]) return toast("You already have this on your farm.");
+      if (state.cash < v.cost) return toast(`You need ${formatMoney(v.cost)}.`);
+      state.cash -= v.cost;
+      state.farmVentures[v.id] = true;
+      gainSkill('practical', .3);
+      let riskHit = false;
+      if (chance(v.riskChance)) {
+        riskHit = true;
+        state.landIncome += Math.round((v.income - v.maintenance) * .35);
+        state.stress += 5;
+      } else {
+        state.landIncome += (v.income - v.maintenance);
+      }
+      record(`Started ${v.name} on the farm`);
+      advanceAfterChoice(riskHit
+        ? `You start with ${v.name.toLowerCase()}, but ${v.riskText} reduces the first returns badly. You keep the venture running at a smaller scale.`
+        : `You start with ${v.name.toLowerCase()}. After feed and upkeep, it adds reliable income every quarter.`);
+    }
+
     function assetMenuScene() {
       const choices = [
         { title: "Look at transport options", detail: `Current: ${currentVehicle().name}. Vehicles change cost, mobility and business reach.`, action: vehicleMarketScene },
-        { title: "Buy a verified small land plot", detail: "K30,000 · documents and boundaries checked in this game.", className: "risky", action: buyVerifiedLand }
+        { title: "Look at land options", detail: "4 kinds of plot, from cheap and risky to titled and safe.", className: "risky", action: landMarketScene }
       ];
       if (state.landPlots > 0) {
-        choices.push({ title: "Develop one land plot", detail: "K12,000 · increase value and create K1,800 quarterly income.", className: "good", action: developLand });
-        choices.push({ title: "Sell one land plot", detail: "Receive the current average value of one plot.", action: sellLand });
+        choices.push({ title: "Develop a plot", detail: undevelopedPlots() > 0 ? `${undevelopedPlots()} plot(s) ready: house, rentals, guest house or farm.` : "All plots are already developed.", className: "good", action: landDevelopScene });
+        if ((state.landDevelopments.farm || 0) > 0) choices.push({ title: "Livestock & crops", detail: "Add chickens, goats, pigs or vegetables to your farm.", className: "good", action: farmVenturesScene });
+        if (undevelopedPlots() > 0) choices.push({ title: "Sell one undeveloped land plot", detail: "Receive the current average value of one plot.", action: sellLand });
       }
       choices.push(backChoice());
       renderScene({ id: "asset_menu", chapter: chapterForAge(state.age), title: "Assets & Property", text: `Vehicles help you move and trade but require upkeep. Verified land can grow in value, while unclear ownership can destroy savings. Current asset value: ${formatMoney(currentVehicle().value + landAssetValue())}.`, choices });
@@ -1378,21 +1567,47 @@
       const value = Math.round(currentVehicle().value * .65); const sold = currentVehicle().name; state.cash += value; state.vehicle = "none"; record(`Sold ${sold}`); advanceAfterChoice(`You sell the ${sold} for ${formatMoney(value)} and return to public transport. You lose convenience but free cash and reduce fixed costs.`);
     }
 
-    function buyVerifiedLand() {
-      const cost = 30000;
-      if (state.cash < cost) return toast(`You need ${formatMoney(cost)}.`);
-      state.cash -= cost; state.landPlots += 1; state.landValue += 31500; gainSkill('academic', .25); state.reputation += 1; record("Bought a verified land plot"); advanceAfterChoice("You inspect the boundaries, verify the seller and documents, and only then transfer money. The plot becomes a long-term asset rather than a promise.");
+    const landTypes = [
+      { id: "customary", name: "Customary Plot (No Title)", cost: 12000, grantedValue: 15000, disputeChance: .3, skillType: "practical", text: "Allocated informally through a local chief, cheap but with no registered title. Boundaries and ownership can later be disputed." },
+      { id: "farm", name: "Small Farm Plot", cost: 18000, grantedValue: 19500, disputeChance: .12, skillType: "practical", text: "A larger plot outside town suited to farming. Cheaper per hectare, with real potential once developed, but further from services." },
+      { id: "verified", name: "Verified Small Plot", cost: 30000, grantedValue: 31500, disputeChance: 0, skillType: "academic", text: "Boundaries and ownership documents are checked by a lawyer or surveyor before you pay. Slower and costlier, but the safest route." },
+      { id: "titled_growth", name: "Titled Plot in a Growing Area", cost: 55000, grantedValue: 62000, disputeChance: 0, skillType: "academic", text: "A fully titled plot in an area with rising demand. The largest upfront cost, but the strongest long-term appreciation." }
+    ];
+
+    function landMarketScene() {
+      const choices = landTypes.map(t => ({
+        title: `${t.name} · ${formatMoney(t.cost)}`,
+        detail: `${t.text}${t.disputeChance ? ` (about ${Math.round(t.disputeChance * 100)}% chance of a later ownership dispute)` : " (no dispute risk in this game)"}`,
+        className: t.disputeChance ? "risky" : "good",
+        action: () => buyLand(t)
+      }));
+      choices.push(backChoice());
+      renderScene({ id: "land_market", chapter: chapterForAge(state.age), title: "Land Options", text: "Land in Zambia ranges from cheap, informally allocated plots to fully titled land in high-demand areas. Cheaper land is not automatically a bad choice, but it usually carries more risk than title deeds do.", choices });
     }
 
-    function developLand() {
-      if (state.landPlots <= 0) return toast("You do not own land yet.");
-      if (state.cash < 12000) return toast("You need K12,000.");
-      state.cash -= 12000; state.landValue += 16000; state.landIncome += 1800; gainSkill('business', .35); state.stress += 3; record("Developed a land plot"); advanceAfterChoice("You add a simple income-producing use to part of the land. It takes planning and supervision, but it now contributes each quarter.");
+    function buyLand(type) {
+      if (state.cash < type.cost) return toast(`You need ${formatMoney(type.cost)}.`);
+      state.cash -= type.cost;
+      state.landPlots += 1;
+      state.landTypesOwned = state.landTypesOwned || [];
+      state.landTypesOwned.push(type.id);
+      gainSkill(type.skillType, .25);
+      if (type.disputeChance && chance(type.disputeChance)) {
+        state.landValue += Math.round(type.grantedValue * .35);
+        state.stress += 8;
+        record(`Bought a ${type.name} — ownership dispute`);
+        advanceAfterChoice(`You buy the ${type.name.toLowerCase()}, but a relative of the previous occupant later challenges the boundaries. Resolving it takes time and reduces the plot's usable value, though you still keep partial ownership.`);
+      } else {
+        state.landValue += type.grantedValue;
+        state.reputation += 1;
+        record(`Bought a ${type.name}`);
+        advanceAfterChoice(`You complete the purchase of the ${type.name.toLowerCase()}. ${type.disputeChance ? "This time the ownership goes unchallenged," : "The documented process protects you,"} and the plot becomes a long-term asset.`);
+      }
     }
 
     function sellLand() {
-      if (state.landPlots <= 0) return toast("You do not own land.");
-      const perPlot = Math.round(state.landValue / state.landPlots); state.cash += perPlot; state.landValue -= perPlot; state.landPlots -= 1; state.landIncome = Math.max(0, state.landIncome - 1800); record("Sold one land plot"); advanceAfterChoice(`You sell one verified plot for ${formatMoney(perPlot)}. The cash is available immediately, but future appreciation and income are lower.`);
+      if (undevelopedPlots() <= 0) return toast("You have no undeveloped plot to sell. Developed plots (house, rentals, guest house, farm) cannot be sold in this game.");
+      const perPlot = Math.round(state.landValue / state.landPlots); state.cash += perPlot; state.landValue -= perPlot; state.landPlots -= 1; record("Sold one undeveloped land plot"); advanceAfterChoice(`You sell one plot for ${formatMoney(perPlot)}. The cash is available immediately, but future appreciation is lower.`);
     }
 
     function personalMenuScene() {
@@ -1502,7 +1717,9 @@
         state.job = job.id;
         state.reputation += 2;
         record(`Became a ${job.name}`);
-        advanceAfterChoice(`Your preparation pays off. You are offered a position as a ${job.name}, with quarterly earnings of about ${formatMoney(job.salary)} in this game.`);
+        const netPay = calculateTaxAndPension(job.salary).net;
+        const payNote = job.salary > 15300 ? ` After PAYE tax and NAPSA pension, take-home is about ${formatMoney(netPay)}/quarter.` : "";
+        advanceAfterChoice(`Your preparation pays off. You are offered a position as a ${job.name}, with quarterly earnings of about ${formatMoney(job.salary)} in this game.${payNote}`);
       } else {
         gainSkill(job.skillType || 'practical', .3);
         gainNetwork(.4);
@@ -1667,7 +1884,7 @@
         suspiciousLandEvent, mobileMoneyFraudEvent, vehicleRepairEvent, rentIncreaseEvent,
         bulkOrderEvent, customerCreditEvent, marketInspectionEvent, stockTheftEvent, communityContractEvent,
         overtimeShiftEvent, studyGroupEvent, healthConcernEvent, weddingInvitationEvent, familySchoolFeesEvent,
-        toolBreakdownEvent, freelanceGigEvent, financialLiteracyWorkshopEvent
+        toolBreakdownEvent, freelanceGigEvent, financialLiteracyWorkshopEvent, successExpectationEvent
       ];
       let scenes = eventFactories.map(fn => fn()).filter(scene => scene.available !== false && (!scene.onceKey || !state.flags[scene.onceKey]));
       const recent = new Set(state.recentEvents || []);
@@ -1854,6 +2071,39 @@
             if (chance(.48)) { state.reputation = Math.max(0, state.reputation - 4); state.businessBonus = Math.max(0, state.businessBonus - .03); }
             else { gainSkill('business', .4); }
             advanceAfterChoice("The cheaper stock improves cash flow immediately. Only time—and customer reactions—will reveal whether the saving was wise.");
+          }}
+        ]
+      };
+    }
+
+    function successExpectationEvent() {
+      return {
+        id: "success_expectation",
+        onceKey: "successExpectation",
+        available: visibleSuccessScore(state) >= 4.5,
+        chapter: chapterForAge(state.age),
+        title: "Success Has a Price",
+        text: "People have noticed how far you have come — the job, the business, the home. Relatives and neighbours increasingly assume you can help with school fees, funerals, ceremonies and small emergencies. In many communities in Zambia, visible success comes with a real, ongoing expectation to give back. How you respond now sets a pattern for years to come.",
+        choices: [
+          { title: "Commit to regular family support", detail: "Give about 7% of your income each quarter from now on. Strong standing, real ongoing cost.", className: "good", action: () => {
+            state.familyObligationRate = .07;
+            gainNetwork(2);
+            state.reputation += 3;
+            state.stress -= 4;
+            record("Committed to ongoing family and community support");
+            advanceAfterChoice("You decide to give consistently rather than unpredictably. It costs real money every quarter, but it is planned for, and it earns lasting trust and standing instead of resentment.");
+          }},
+          { title: "Help occasionally, case by case", detail: "No fixed commitment — decide each time it comes up.", action: () => {
+            state.reputation += 1;
+            record("Chose to help family case by case");
+            advanceAfterChoice("You keep helping when you reasonably can, without a fixed promise. It is more flexible, but people cannot always predict when you will say yes.");
+          }},
+          { title: "Set clear, limited boundaries", detail: "Explain your own plan honestly. Protects your finances, costs some goodwill.", action: () => {
+            state.reputation = Math.max(0, state.reputation - 3);
+            state.stress += 5;
+            gainSkill('academic', .3);
+            record("Set firm boundaries on family financial requests");
+            advanceAfterChoice("You explain, respectfully but clearly, what you can and cannot commit to. Some relatives are disappointed, but your own plan stays protected from unlimited claims on it.");
           }}
         ]
       };
@@ -2205,6 +2455,7 @@
       $("businessSkillValue").textContent = (Math.round(state.skills.business * 10) / 10).toFixed(1);
       $("academicSkillValue").textContent = (Math.round(state.skills.academic * 10) / 10).toFixed(1);
       $("jobValue").textContent = currentJob().name;
+      $("pensionValue").textContent = formatMoney(state.pensionPot || 0);
       $("businessValue").textContent = state.businessLevel ? `${currentBusiness().name} · ${state.businessType || "Business"}` : "None";
       const fp = currentFoodPlan();
       $("foodValue").textContent = `${fp.name} · ${formatMoney(fp.cost)}/qtr · ${fp.energy >= 0 ? "+" : ""}${fp.energy} energy`;
@@ -2328,7 +2579,7 @@
         state.studying = null;
       }
       const defaults = createInitialState(state?.name || "Player", state?.background || "focused");
-      state = { ...defaults, ...state, skills: { ...defaults.skills, ...(state.skills || {}) }, education: { ...defaults.education, ...(state.education || {}) }, flags: { ...defaults.flags, ...(state.flags || {}) }, history: Array.isArray(state.history) ? state.history : [], recentEvents: Array.isArray(state.recentEvents) ? state.recentEvents : [] };
+      state = { ...defaults, ...state, skills: { ...defaults.skills, ...(state.skills || {}) }, education: { ...defaults.education, ...(state.education || {}) }, flags: { ...defaults.flags, ...(state.flags || {}) }, landDevelopments: { ...defaults.landDevelopments, ...(state.landDevelopments || {}) }, farmVentures: { ...defaults.farmVentures, ...(state.farmVentures || {}) }, landTypesOwned: Array.isArray(state.landTypesOwned) ? state.landTypesOwned : [], history: Array.isArray(state.history) ? state.history : [], recentEvents: Array.isArray(state.recentEvents) ? state.recentEvents : [] };
       state.version = 3;
       // Migrate milestone flags from the v1.0 naming bug that could repeat the same scene forever.
       if (state.flags.mobile) state.flags.mobileMoneyLesson = true;
