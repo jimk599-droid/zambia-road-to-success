@@ -1249,6 +1249,33 @@
       renderScene({ id: "career_menu", chapter: chapterForAge(state.age), title: "Work & Career", text: `Current position: ${job.name}. Stable income matters, but career growth usually requires evidence of skill, reliability and relationships.${taxNote}`, choices });
     }
 
+    const bursaryTypes = {
+      practical: { id: "cdf", name: "CDF Skills Development Bursary", chance: .4, applicationCost: 200, text: "A real Zambian government fund (Constituency Development Fund) that sponsors TEVET and skills training for eligible residents. It is free if awarded, but funds are limited and not everyone who applies is selected." },
+      business: { id: "student_bursary", name: "Student Bursary", chance: .3, applicationCost: 250, text: "A competitive bursary for business and university-level study. Coverage is generous but limited, and stronger applicants (skill, reputation) have a better chance." },
+      academic: { id: "student_bursary", name: "Student Bursary", chance: .3, applicationCost: 250, text: "A competitive bursary for business and university-level study. Coverage is generous but limited, and stronger applicants (skill, reputation) have a better chance." }
+    };
+
+    function bursarySuccessChance(track, bursary) {
+      // A stronger profile (skill in the relevant area, some reputation) improves the odds,
+      // reflecting how references and demonstrated commitment help real applications.
+      return clamp(bursary.chance + (state.skills[track] || 0) * .015 + (state.reputation || 0) * .002, .15, .75);
+    }
+
+    function applyForBursary(track, level, bursary) {
+      if (state.cash < bursary.applicationCost) return toast(`You need ${formatMoney(bursary.applicationCost)} for application costs (copies, transport, forms).`);
+      state.cash -= bursary.applicationCost;
+      state.energy -= 6;
+      const odds = bursarySuccessChance(track, bursary);
+      if (chance(odds)) {
+        startStudy(track, level, 0, `Your ${bursary.name} application is approved. The course is fully sponsored — you keep your cash for other priorities, though the fund could only support a limited number of applicants this round.`);
+      } else {
+        state.stress += 4;
+        gainSkill('academic', .15);
+        record(`${bursary.name} application unsuccessful`);
+        advanceAfterChoice(`Your ${bursary.name} application is not selected this round — funds are limited and demand is high. You can apply again later, pay directly, or consider a loan.`);
+      }
+    }
+
     function educationMenuScene() {
       const choices = [];
       if (state.studying) {
@@ -1269,6 +1296,16 @@
             disabled: locked,
             action: () => enrolEducation(track, next)
           });
+          if (!locked) {
+            const bursary = bursaryTypes[track];
+            const odds = Math.round(bursarySuccessChance(track, bursary) * 100);
+            choices.push({
+              title: `Apply for ${bursary.name}: ${next.name}`,
+              detail: `${bursary.text} About ${odds}% chance this round · K${bursary.applicationCost} application cost · fully sponsored if approved.`,
+              className: "risky",
+              action: () => applyForBursary(track, next, bursary)
+            });
+          }
         });
       }
       if (!state.flags.bookkeepingCourse) choices.push({ title: "Basic bookkeeping course", detail: "K1,400 · better records and stronger business decisions.", action: () => takeMicroCourse("bookkeepingCourse", 1400, "You learn to separate sales, costs, cash and profit. The business becomes easier to control.", () => { gainSkill('business', .7); state.businessBonus += .035; state.flags.businessRecords = true; }) });
