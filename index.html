@@ -444,6 +444,12 @@
         <label for="playerName">Your name</label>
         <input id="playerName" type="text" maxlength="24" placeholder="Enter a name" autocomplete="off" />
 
+        <label style="margin-top:14px;display:block">Gender</label>
+        <div class="button-stack" id="genderOptions" style="flex-direction:row;gap:8px">
+          <button type="button" class="secondary gender-option" data-gender="female" style="flex:1">Female</button>
+          <button type="button" class="secondary gender-option" data-gender="male" style="flex:1">Male</button>
+        </div>
+
         <div class="background-options" id="backgroundOptions"></div>
         <div class="button-stack">
           <button class="primary" id="beginBtn" disabled>Begin the Story</button>
@@ -751,6 +757,7 @@
     }
 
     let selectedBackground = null;
+    let selectedGender = null;
     let state = null;
     let currentScene = null;
     let toastTimer = null;
@@ -866,15 +873,24 @@
       });
     }
 
-    function validateSetup() {
-      $("beginBtn").disabled = !(selectedBackground && $("playerName").value.trim().length >= 2);
+    function renderGenderOptions() {
+      document.querySelectorAll(".gender-option").forEach(btn => {
+        btn.classList.toggle("selected", selectedGender === btn.dataset.gender);
+        btn.classList.toggle("primary", selectedGender === btn.dataset.gender);
+        btn.classList.toggle("secondary", selectedGender !== btn.dataset.gender);
+      });
     }
 
-    function createInitialState(name, bgId) {
+    function validateSetup() {
+      $("beginBtn").disabled = !(selectedBackground && selectedGender && $("playerName").value.trim().length >= 2);
+    }
+
+    function createInitialState(name, bgId, genderValue) {
       const bg = backgrounds.find(b => b.id === bgId);
       const s = {
         version: 3,
         name,
+        gender: genderValue || "female",
         background: bgId,
         age: 18,
         quarter: 1,
@@ -908,6 +924,11 @@
         vehicle: "none",
         securityPlan: "none",
         furniture: {},
+        relationshipStatus: "single",
+        partnerName: null,
+        partnerJob: null,
+        children: [],
+        schoolFeesTier: "public",
         landPlots: 0,
         landValue: 0,
         landIncome: 0,
@@ -941,7 +962,7 @@
 
     function startNewGame() {
       const name = $("playerName").value.trim();
-      state = createInitialState(name, selectedBackground);
+      state = createInitialState(name, selectedBackground, selectedGender);
       saveGame(false);
       showScreen("gameScreen");
       renderScene(getIntroScene());
@@ -1065,11 +1086,18 @@
       const assetIncome = Math.round(state.landIncome || 0);
       const debtInterest = state.debt > 0 ? Math.max(100, state.debt * (state.debtRate || .035)) : 0;
       const familyObligationCost = state.familyObligationRate ? Math.round((salary + Math.max(0, businessProfit)) * state.familyObligationRate) : 0;
-      const income = Math.round(salary + businessProfit + assetIncome);
-      const costs = Math.round(foodCost + housingCost + transportCost + securityCost + debtInterest + familyObligationCost);
+      const partnerIncome = (state.relationshipStatus === "married" || state.relationshipStatus === "cohabiting") ? 2200 : 0;
+      const schoolAgeCount = state.children.filter(c => c >= 6 && c < 18).length;
+      const schoolTier = schoolFeesTiers.find(t => t.id === state.schoolFeesTier) || schoolFeesTiers[1];
+      const schoolCost = schoolTier.costPerChild ? schoolTier.costPerChild * schoolAgeCount : 0;
+      if (schoolAgeCount > 0 && schoolTier.id === "unpaid") { state.stress += 3; state.reputation = Math.max(0, state.reputation - 1); }
+      const childUpkeepCost = state.children.length * 300;
+      const income = Math.round(salary + businessProfit + assetIncome + partnerIncome);
+      const costs = Math.round(foodCost + housingCost + transportCost + securityCost + debtInterest + familyObligationCost + schoolCost + childUpkeepCost);
       state.cash += income - costs;
       state.totalIncome += Math.max(0, income);
       if (familyObligationCost > 0) gainNetwork(.1);
+      state.children = state.children.map(age => age + .25);
 
       if (state.cash > 0 && (state.unpaidBills || 0) > 0) {
         const catchUp = Math.min(state.cash, state.unpaidBills);
@@ -1235,6 +1263,7 @@
           { title: "🛍️ Business & customers", detail: "Start, promote, formalise and grow a business.", className: state.businessLevel ? "good" : "risky", action: businessMenuScene },
           { title: "🏠 Money & household budget", detail: "Choose food, housing, savings and debt priorities.", action: budgetMenuScene },
           { title: "🚗 Assets & property", detail: "Buy transport, invest in verified land or develop property.", className: "risky", action: assetMenuScene },
+          { title: "❤️ Relationships & family", detail: relationshipSummaryText(), action: relationshipMenuScene },
           { title: "🤝 Wellbeing & connections", detail: "Rest, family, community, networking and unexpected opportunities.", action: personalMenuScene }
         ]
       };
@@ -1770,6 +1799,125 @@
     function sellLand() {
       if (undevelopedPlots() <= 0) return toast("You have no undeveloped plot to sell. Developed plots (house, rentals, guest house, farm) cannot be sold in this game.");
       const perPlot = Math.round(state.landValue / state.landPlots); state.cash += perPlot; state.landValue -= perPlot; state.landPlots -= 1; record("Sold one undeveloped land plot"); advanceAfterChoice(`You sell one plot for ${formatMoney(perPlot)}. The cash is available immediately, but future appreciation is lower.`);
+    }
+
+    const partnerNamesFemale = ["Mutinta", "Chileshe", "Natasha", "Bupe", "Chola", "Nchimunya", "Mwaba", "Grace", "Precious", "Namuchana"];
+    const partnerNamesMale = ["Mulenga", "Chanda", "Bwalya", "Mwansa", "Kunda", "Sakala", "Joseph", "Davies", "Emmanuel", "Musonda"];
+    const partnerJobs = ["Shop assistant", "Market trader", "Teacher's aide", "Tailor", "Office cleaner", "Hairdresser", "Mechanic's assistant"];
+    const schoolFeesTiers = [
+      { id: "unpaid", name: "Cannot pay right now", costPerChild: 0 },
+      { id: "public", name: "Public school", costPerChild: 450 },
+      { id: "cdf_bursary", name: "Apply for CDF Bursary support", costPerChild: 0 },
+      { id: "private", name: "Private school", costPerChild: 1800, skillBonus: .04 }
+    ];
+
+    function relationshipSummaryText() {
+      if (state.relationshipStatus === "single") return "Single. Meeting someone takes time and a little luck.";
+      if (state.relationshipStatus === "dating") return `Dating ${state.partnerName}.`;
+      const label = state.relationshipStatus === "married" ? "Married to" : "Living with";
+      const kids = state.children.length ? `, ${state.children.length} child${state.children.length > 1 ? "ren" : ""}` : "";
+      return `${label} ${state.partnerName}${kids}.`;
+    }
+
+    function schoolFeesLabel(tierId) {
+      const t = schoolFeesTiers.find(x => x.id === tierId);
+      return t ? t.name : "Public school";
+    }
+
+    function relationshipMenuScene() {
+      const choices = [];
+      if (state.relationshipStatus === "single") {
+        choices.push({ title: "Look for a partner", detail: "Takes energy and a bit of luck. Better odds with more network and reputation.", className: "good", action: lookForPartner });
+      } else if (state.relationshipStatus === "dating") {
+        choices.push({ title: `Decide about ${state.partnerName}`, detail: "Move in together, marry, or end it.", className: "good", action: deepenRelationshipScene });
+        choices.push({ title: "Keep dating for now", detail: "No change this quarter.", action: () => advanceAfterChoice(`You and ${state.partnerName} keep seeing each other without rushing into a bigger decision.`) });
+      } else {
+        if (state.children.length < 4) choices.push({ title: "Try for a child", detail: "K1,500 for clinic and preparation costs — the start of a real, ongoing commitment.", className: "risky", action: haveChildAction });
+        const schoolAge = state.children.filter(c => c >= 6 && c < 18).length;
+        if (schoolAge > 0) choices.push({ title: "Review school fees", detail: `${schoolAge} child${schoolAge > 1 ? "ren" : ""} of school age. Current plan: ${schoolFeesLabel(state.schoolFeesTier)}.`, action: schoolFeesScene });
+        choices.push({ title: `End things with ${state.partnerName}`, detail: state.relationshipStatus === "married" ? "Divorce — emotionally and financially costly." : "A breakup — simpler, but still difficult.", className: "risky", action: endRelationshipAction });
+      }
+      choices.push(backChoice());
+      renderScene({ id: "relationship_menu", chapter: chapterForAge(state.age), title: "Relationships & Family", text: relationshipSummaryText() + (state.children.length ? ` Children's ages: ${state.children.map(a => Math.floor(a)).join(", ")}.` : ""), choices });
+    }
+
+    function lookForPartner() {
+      state.energy -= 8;
+      const meetChance = clamp(.3 + state.network * .03 + state.reputation * .003, .15, .7);
+      if (chance(meetChance)) {
+        const pool = state.gender === "male" ? partnerNamesFemale : partnerNamesMale;
+        state.partnerName = pick(pool);
+        state.relationshipStatus = "dating";
+        gainNetwork(.3);
+        record(`Started dating ${state.partnerName}`);
+        advanceAfterChoice(`Through friends and everyday life, you meet ${state.partnerName}. It is early, but there is real interest on both sides.`);
+      } else {
+        state.stress += 3;
+        advanceAfterChoice("Nothing serious comes of it this time. Meeting the right person is not something you can force on a schedule.");
+      }
+    }
+
+    function deepenRelationshipScene() {
+      const choices = [
+        { title: "Move in together", detail: "No ceremony cost. A real commitment with less formal recognition.", className: "good", action: () => {
+          state.relationshipStatus = "cohabiting";
+          state.partnerJob = pick(partnerJobs);
+          state.stress -= 5;
+          gainNetwork(.5);
+          record(`Moved in with ${state.partnerName}`);
+          advanceAfterChoice(`You and ${state.partnerName} decide to share a home without a formal wedding. Day-to-day life immediately feels less lonely, and costs are easier to share.`);
+        }},
+        { title: "Get married", detail: "K12,000 for a modest wedding. Stronger recognition, reputation and network.", className: "good", action: () => {
+          financeOrProceed(12000, "A modest wedding", "wedding_funding", "The Wedding Is Planned—but Not Yet Paid For", (paidCost, viaLoan) => {
+            state.cash -= paidCost;
+            state.relationshipStatus = "married";
+            state.partnerJob = pick(partnerJobs);
+            state.reputation += 6;
+            gainNetwork(1.5);
+            state.stress -= 8;
+            record(`Married ${state.partnerName}${viaLoan ? " (financed)" : ""}`);
+            advanceAfterChoice(`You marry ${state.partnerName}${viaLoan ? ", financed partly by a loan" : ""}. Family and community treat it as a real milestone, and the relationship now has full recognition.`);
+          });
+        }},
+        { title: "End it", detail: "You are not ready, or it is not right.", action: endRelationshipAction }
+      ];
+      choices.push(backChoice());
+      renderScene({ id: "deepen_relationship", chapter: chapterForAge(state.age), title: `Deciding About ${state.partnerName}`, text: "Some relationships are meant to stay casual. Others become the foundation of a household. There is no wrong answer, only trade-offs.", choices });
+    }
+
+    function endRelationshipAction() {
+      const wasFormal = state.relationshipStatus === "married";
+      state.stress += wasFormal ? 15 : 8;
+      if (wasFormal) { state.cash = Math.max(0, state.cash - Math.round(state.cash * .15)); }
+      const oldName = state.partnerName;
+      record(wasFormal ? `Divorced ${oldName}` : `Ended things with ${oldName}`);
+      state.relationshipStatus = "single";
+      state.partnerName = null;
+      state.partnerJob = null;
+      advanceAfterChoice(wasFormal ? `The marriage to ${oldName} ends in divorce. Splitting a shared life is emotionally and financially costly, though the children (if any) remain part of yours.` : `Things end with ${oldName}. It is hard, but there was no shared property to complicate it.`);
+    }
+
+    function haveChildAction() {
+      if (state.cash < 1500) return toast("You need K1,500 for clinic and preparation costs.");
+      state.cash -= 1500;
+      state.energy -= 15;
+      state.stress += 6;
+      state.children.push(0);
+      gainNetwork(.3);
+      record(`Welcomed a new child (now ${state.children.length})`);
+      advanceAfterChoice(`You and ${state.partnerName} welcome a new child. It is one of the biggest joys, and one of the biggest ongoing responsibilities, either of you have taken on.`);
+    }
+
+    function schoolFeesScene() {
+      const schoolAgeCount = state.children.filter(c => c >= 6 && c < 18).length;
+      const choices = schoolFeesTiers.map(t => ({
+        title: t.name,
+        detail: t.id === "cdf_bursary" ? "A real, competitive government bursary — free education if approved, but not guaranteed." : t.costPerChild ? `${formatMoney(t.costPerChild)}/quarter per school-age child (${formatMoney(t.costPerChild * schoolAgeCount)} total).` : "No fee, but a real risk of falling behind or dropping out.",
+        className: t.id === state.schoolFeesTier ? "good" : (t.id === "unpaid" ? "risky" : ""),
+        action: () => { state.schoolFeesTier = t.id; record(`Set school plan to ${t.name}`); advanceAfterChoice(`You settle on ${t.name.toLowerCase()} for now. This applies to all ${schoolAgeCount} school-age child${schoolAgeCount > 1 ? "ren" : ""}.`); }
+      }));
+      choices.push(backChoice());
+      renderScene({ id: "school_fees", chapter: chapterForAge(state.age), title: "School Fees", text: `You have ${schoolAgeCount} child${schoolAgeCount > 1 ? "ren" : ""} of school age. Choose how their education is funded — the same real trade-offs apply here as they did for you.`, choices });
     }
 
     function personalMenuScene() {
@@ -3018,7 +3166,7 @@
         // safest migration is to end the course; the player can re-enrol immediately.
         state.studying = null;
       }
-      const defaults = createInitialState(state?.name || "Player", state?.background || "focused");
+      const defaults = createInitialState(state?.name || "Player", state?.background || "focused", state?.gender || "female");
       state = { ...defaults, ...state, skills: { ...defaults.skills, ...(state.skills || {}) }, education: { ...defaults.education, ...(state.education || {}) }, flags: { ...defaults.flags, ...(state.flags || {}) }, landDevelopments: { ...defaults.landDevelopments, ...(state.landDevelopments || {}) }, farmVentures: { ...defaults.farmVentures, ...(state.farmVentures || {}) }, furniture: { ...defaults.furniture, ...(state.furniture || {}) }, landTypesOwned: Array.isArray(state.landTypesOwned) ? state.landTypesOwned : [], history: Array.isArray(state.history) ? state.history : [], recentEvents: Array.isArray(state.recentEvents) ? state.recentEvents : [] };
       state.version = 3;
       // Migrate milestone flags from the v1.0 naming bug that could repeat the same scene forever.
@@ -3036,6 +3184,7 @@
       gameStorage.removeItem(SAVE_KEY);
       state = null;
       selectedBackground = null;
+      selectedGender = null;
       $("playerName").value = "";
       renderBackgrounds();
       validateSetup();
@@ -3076,10 +3225,13 @@ Feedback: Which choice felt most realistic? Was borrowing clear? Did the hustle 
       area.remove();
     }
 
-    $("newGameBtn").addEventListener("click", () => { selectedBackground = null; renderBackgrounds(); validateSetup(); showScreen("setupScreen"); });
+    $("newGameBtn").addEventListener("click", () => { selectedBackground = null; selectedGender = null; renderBackgrounds(); renderGenderOptions(); validateSetup(); showScreen("setupScreen"); });
     $("continueBtn").addEventListener("click", loadGame);
     $("backHomeBtn").addEventListener("click", () => showScreen("homeScreen"));
     $("playerName").addEventListener("input", validateSetup);
+    document.querySelectorAll(".gender-option").forEach(btn => {
+      btn.addEventListener("click", () => { selectedGender = btn.dataset.gender; renderGenderOptions(); validateSetup(); });
+    });
     $("beginBtn").addEventListener("click", startNewGame);
     $("saveBtn").addEventListener("click", () => saveGame(true));
     $("restartBtn").addEventListener("click", restartGame);
