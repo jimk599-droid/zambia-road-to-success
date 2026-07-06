@@ -329,6 +329,7 @@
       z-index: 100;
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.celebration { background: linear-gradient(135deg, #d98c2b, #b5651d); font-weight: 600; font-size: 14px; }
 
     .modal-backdrop {
       display: none;
@@ -420,6 +421,7 @@
         <div class="button-stack">
           <button class="primary" id="newGameBtn">Start a New Life</button>
           <button class="secondary" id="continueBtn">Continue Saved Game</button>
+          <button class="secondary" id="achievementsBtn">🏆 Achievements & Endings</button>
         </div>
         <div class="local-file-note" id="iphoneFileNote">
           <strong>iPhone test version</strong>
@@ -521,9 +523,11 @@
         <div class="chapter">Your ending</div>
         <h2 id="resultTitle">Your Life Path</h2>
         <p id="resultText" style="line-height:1.6;color:#3f4b43"></p>
+        <h3 style="margin-top:6px">Your Story</h3>
+        <p id="yourStoryText" style="line-height:1.6;color:#3f4b43;font-style:italic"></p>
         <div class="summary-list" id="resultSummary"></div>
         <div class="button-stack">
-          <button class="primary" id="copyResultBtn">Copy Test Result</button>
+          <button class="primary" id="copyResultBtn">📋 Copy My Story to Share</button>
           <button class="secondary" id="playAgainBtn">Play Again</button>
         </div>
       </div>
@@ -535,6 +539,18 @@
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="achievementsModal" role="dialog" aria-modal="true" aria-labelledby="achievementsTitle">
+    <div class="modal">
+      <h2 id="achievementsTitle">🏆 Achievements & Endings</h2>
+      <p style="color:var(--muted);font-size:14px">These carry over across every playthrough on this device — starting a new life does not reset them.</p>
+      <h3 style="margin-top:14px">Achievements</h3>
+      <div class="summary-list" id="achievementsList"></div>
+      <h3 style="margin-top:14px">Endings Discovered</h3>
+      <div class="summary-list" id="endingsList"></div>
+      <button class="primary" id="closeAchievementsBtn" style="margin-top:14px">Close</button>
+    </div>
+  </div>
 
   <div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="modal">
@@ -828,7 +844,7 @@
       const costs = estimatedQuarterlyCosts();
       const surplus = income - costs;
       let score = 5;
-      score += totalSkill(state) * 2.1;
+      score += Math.min(20, totalSkill(state) * 2.1);
       score += educationRank(state) * 4;
       score += Math.min(12, state.network * 1.2);
       score += Math.min(12, state.reputation / 5);
@@ -848,12 +864,89 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function toast(message) {
+    function toast(message, celebration = false) {
       const el = $("toast");
       el.textContent = message;
       el.classList.add("show");
+      el.classList.toggle("celebration", celebration);
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+      toastTimer = setTimeout(() => { el.classList.remove("show"); el.classList.remove("celebration"); }, celebration ? 4200 : 2600);
+    }
+
+    function celebrate(message) {
+      toast(`🎉 ${message}`, true);
+    }
+
+    // Achievements and endings-seen persist across playthroughs in their own storage key,
+    // separate from the current save, so starting a new life does not reset past progress.
+    const ACHIEVEMENTS_KEY = "zambiaRoadToSuccessAchievements_v1";
+    function loadPersistentProgress() {
+      try {
+        const raw = gameStorage.getItem(ACHIEVEMENTS_KEY);
+        if (!raw) return { unlocked: [], endingsSeen: [] };
+        const parsed = JSON.parse(raw);
+        return { unlocked: Array.isArray(parsed.unlocked) ? parsed.unlocked : [], endingsSeen: Array.isArray(parsed.endingsSeen) ? parsed.endingsSeen : [] };
+      } catch { return { unlocked: [], endingsSeen: [] }; }
+    }
+    function savePersistentProgress() {
+      try { gameStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(persistentProgress)); } catch {}
+    }
+    let persistentProgress = loadPersistentProgress();
+
+    const achievementDefs = [
+      { id: "first_job", icon: "💼", name: "First Job", desc: "Earned your first real job." },
+      { id: "first_business", icon: "🛍️", name: "First Business", desc: "Started your first side hustle." },
+      { id: "first_diploma", icon: "🎓", name: "Recognised Qualification", desc: "Completed a Diploma or Degree in any track." },
+      { id: "triple_threat", icon: "🧠", name: "Triple Threat", desc: "Built skill through Practical, Business and Academic education." },
+      { id: "own_home", icon: "🏠", name: "Built Your Own Home", desc: "Stopped paying rent for good." },
+      { id: "married", icon: "💍", name: "Got Married", desc: "Made a relationship official." },
+      { id: "first_child", icon: "👶", name: "Became a Parent", desc: "Welcomed your first child." },
+      { id: "landowner", icon: "🌍", name: "Landowner", desc: "Bought your first plot of land." },
+      { id: "farmer", icon: "🐐", name: "Working Farm", desc: "Set up a working farm plot." },
+      { id: "first_100k", icon: "💵", name: "First K100,000", desc: "Reached K100,000 in net worth." },
+      { id: "first_million", icon: "💰", name: "First Million", desc: "Reached K1,000,000 in net worth." },
+      { id: "director", icon: "🏆", name: "Corner Office", desc: "Became an Operations Director." },
+      { id: "secure_home", icon: "🛡️", name: "Locked Down", desc: "Invested in real security for the first time." },
+      { id: "well_furnished", icon: "🛋️", name: "A Real Home", desc: "Furnished your home with 10 or more items." },
+      { id: "debt_cleared", icon: "🧱", name: "Debt-Free", desc: "Paid off debt after carrying a real balance." }
+    ];
+
+    function achievementChecks() {
+      return {
+        first_job: () => state.job !== "none",
+        first_business: () => state.businessLevel >= 1,
+        first_diploma: () => educationRank(state) >= 2,
+        triple_threat: () => state.education.practical >= 1 && state.education.business >= 1 && state.education.academic >= 1,
+        own_home: () => state.ownsHome,
+        married: () => state.relationshipStatus === "married",
+        first_child: () => state.children && state.children.length >= 1,
+        landowner: () => state.landPlots >= 1,
+        farmer: () => state.landDevelopments && state.landDevelopments.farm >= 1,
+        first_100k: () => netWorth() >= 100000,
+        first_million: () => netWorth() >= 1000000,
+        director: () => state.job === "director",
+        secure_home: () => state.securityPlan && state.securityPlan !== "none",
+        well_furnished: () => state.furniture && Object.values(state.furniture).filter(Boolean).length >= 10,
+        debt_cleared: () => (state.hadDebt) && state.debt === 0
+      };
+    }
+
+    function checkAchievements() {
+      if (!state) return;
+      if (state.debt > 0) state.hadDebt = true;
+      const checks = achievementChecks();
+      const newlyUnlocked = [];
+      achievementDefs.forEach(a => {
+        if (!persistentProgress.unlocked.includes(a.id) && checks[a.id] && checks[a.id]()) {
+          persistentProgress.unlocked.push(a.id);
+          newlyUnlocked.push(a);
+        }
+      });
+      if (newlyUnlocked.length) {
+        savePersistentProgress();
+        if (newlyUnlocked.length === 1) celebrate(`Achievement unlocked: ${newlyUnlocked[0].icon} ${newlyUnlocked[0].name}`);
+        else celebrate(`${newlyUnlocked.length} achievements unlocked: ${newlyUnlocked.map(a => a.icon).join(" ")}`);
+      }
     }
 
     function renderBackgrounds() {
@@ -929,6 +1022,7 @@
         partnerJob: null,
         children: [],
         schoolFeesTier: "public",
+        hadDebt: false,
         landPlots: 0,
         landValue: 0,
         landIncome: 0,
@@ -1168,6 +1262,7 @@
 
     function advanceAfterChoice(outcomeText) {
       const studyMessage = advanceTime();
+      checkAchievements();
       saveGame(false);
       if (checkEnding()) return;
       const scene = buildQuarterScene();
@@ -1789,7 +1884,7 @@
           advanceAfterChoice(`You buy the ${type.name.toLowerCase()}${viaLoan ? " with borrowed money" : ""}, but a relative of the previous occupant later challenges the boundaries. Resolving it takes time and reduces the plot's usable value, though you still keep partial ownership.`);
         } else {
           state.landValue += type.grantedValue;
-          state.reputation += 1;
+          if (state.landPlots <= 3) state.reputation += 1;
           record(`Bought a ${type.name}${viaLoan ? " (financed)" : ""}`);
           advanceAfterChoice(`You complete the purchase of the ${type.name.toLowerCase()}${viaLoan ? " using a loan" : ""}. ${type.disputeChance ? "This time the ownership goes unchallenged," : "The documented process protects you,"} and the plot becomes a long-term asset.`);
         }
@@ -1872,7 +1967,7 @@
             state.cash -= paidCost;
             state.relationshipStatus = "married";
             state.partnerJob = pick(partnerJobs);
-            state.reputation += 6;
+            state.reputation += 4;
             gainNetwork(1.5);
             state.stress -= 8;
             record(`Married ${state.partnerName}${viaLoan ? " (financed)" : ""}`);
@@ -3071,31 +3166,51 @@
         const income = estimatedQuarterlyIncome();
         const costs = estimatedQuarterlyCosts();
         if ((state.unpaidBills || 0) > 0 || (state.debt > Math.max(30000, income * 5) && income < costs)) finishGame("debt_rebuild");
-        else if (options >= 75) finishGame("many_doors");
-        else if (state.businessLevel >= 3 && options >= 58) finishGame("independent_builder");
-        else if (educationRank(state) >= 2 && currentJob().id !== "none" && options >= 58) finishGame("skilled_stable");
-        else if (state.energy >= 55 && state.stress <= 55 && options >= 45) finishGame("balanced_foundation");
+        else if (options >= 88) finishGame("many_doors");
+        else if (state.businessLevel >= 3 && options >= 68) finishGame("independent_builder");
+        else if (educationRank(state) >= 2 && currentJob().id !== "none" && options >= 65) finishGame("skilled_stable");
+        else if (state.energy >= 55 && state.stress <= 55 && options >= 52) finishGame("balanced_foundation");
         else finishGame("still_finding_path");
         return true;
       }
       return false;
     }
 
+    const endingDefs = {
+      many_doors: { icon: "🗝️", title: "Many Doors Are Open", text: s => `At age ${s.age}, you have built several real options. You can change jobs, continue education, grow a business or use your savings without one setback deciding everything. Wealth helped, but skills, trust and manageable obligations created the freedom.` },
+      skilled_stable: { icon: "🎓", title: "Skilled and Stable", text: s => `At age ${s.age}, education and steady work have created a reliable platform. You may not be rich, but you have income, recognised skills and more power to choose your next step.` },
+      independent_builder: { icon: "🛠️", title: "Independent Builder", text: s => `At age ${s.age}, you turned uncertain trading into a more organised operation. The path was not magic or instant wealth; it required customers, records, reinvestment and surviving weak quarters.` },
+      balanced_foundation: { icon: "🌿", title: "A Balanced Foundation", text: s => `At age ${s.age}, you protected your health and relationships while building useful skills and financial stability. Your life still has limits, but it also has room to choose.` },
+      debt_rebuild: { icon: "🧱", title: "Time to Rebuild", text: s => `At age ${s.age}, debt and unpaid costs are restricting your choices. This is not a moral failure or a permanent ending. The lesson is that expensive borrowing, unstable income and repeated shortfalls can remove freedom faster than one lucky gain can restore it.` },
+      still_finding_path: { icon: "🧭", title: "Still Finding Your Path", text: s => `At age ${s.age}, some choices created progress and others created delays. You have learned that success is not one number. A different balance of education, work, business, borrowing and wellbeing could open more doors next time.` }
+    };
+
+    function buildYourStory() {
+      const parts = [`${state.name} started at 18 in Lusaka with almost nothing, and by ${state.age} had become a ${currentJob().name.toLowerCase()}${state.businessLevel > 0 ? ` while running a ${currentBusiness().name.toLowerCase()}` : ""}.`];
+      const eduText = educationSummaryText(state);
+      if (eduText !== "Grade 12") parts.push(`Along the way, ${state.name} completed: ${eduText}.`);
+      if (state.relationshipStatus === "married") parts.push(`${state.name} married ${state.partnerName}${state.children.length ? ` and raised ${state.children.length} child${state.children.length > 1 ? "ren" : ""}` : ""}.`);
+      else if (state.relationshipStatus === "cohabiting") parts.push(`${state.name} built a life together with ${state.partnerName}${state.children.length ? `, including ${state.children.length} child${state.children.length > 1 ? "ren" : ""}` : ""}.`);
+      if (state.ownsHome) parts.push(`${state.name} built and owns a home outright.`);
+      if (state.landPlots > 0) parts.push(`${state.name} owns ${state.landPlots} plot${state.landPlots > 1 ? "s" : ""} of land.`);
+      parts.push(`Final net worth: ${formatMoney(netWorth())}.`);
+      parts.push(`${persistentProgress.unlocked.length}/${achievementDefs.length} lifetime achievements unlocked across all playthroughs.`);
+      return parts.join(" ");
+    }
+
     function finishGame(type) {
-      const endings = {
-        many_doors: { icon: "🗝️", title: "Many Doors Are Open", text: `At age ${state.age}, you have built several real options. You can change jobs, continue education, grow a business or use your savings without one setback deciding everything. Wealth helped, but skills, trust and manageable obligations created the freedom.` },
-        skilled_stable: { icon: "🎓", title: "Skilled and Stable", text: `At age ${state.age}, education and steady work have created a reliable platform. You may not be rich, but you have income, recognised skills and more power to choose your next step.` },
-        independent_builder: { icon: "🛠️", title: "Independent Builder", text: `At age ${state.age}, you turned uncertain trading into a more organised operation. The path was not magic or instant wealth; it required customers, records, reinvestment and surviving weak quarters.` },
-        balanced_foundation: { icon: "🌿", title: "A Balanced Foundation", text: `At age ${state.age}, you protected your health and relationships while building useful skills and financial stability. Your life still has limits, but it also has room to choose.` },
-        debt_rebuild: { icon: "🧱", title: "Time to Rebuild", text: `At age ${state.age}, debt and unpaid costs are restricting your choices. This is not a moral failure or a permanent ending. The lesson is that expensive borrowing, unstable income and repeated shortfalls can remove freedom faster than one lucky gain can restore it.` },
-        still_finding_path: { icon: "🧭", title: "Still Finding Your Path", text: `At age ${state.age}, some choices created progress and others created delays. You have learned that success is not one number. A different balance of education, work, business, borrowing and wellbeing could open more doors next time.` }
-      };
+      checkAchievements();
       state.ending = type;
       saveGame(false);
-      const end = endings[type] || endings.still_finding_path;
+      if (!persistentProgress.endingsSeen.includes(type)) {
+        persistentProgress.endingsSeen.push(type);
+        savePersistentProgress();
+      }
+      const end = endingDefs[type] || endingDefs.still_finding_path;
       $("resultIcon").textContent = end.icon;
       $("resultTitle").textContent = end.title;
-      $("resultText").textContent = end.text;
+      $("resultText").textContent = end.text(state);
+      $("yourStoryText").textContent = buildYourStory();
       $("resultSummary").innerHTML = [
         ["Life options", `${lifeOptionsScore()}/100`],
         ["Bank trust", `${creditworthiness()}/100`],
@@ -3192,26 +3307,21 @@
     }
 
     function copyResult() {
-      const text = `Zambia: Road to Success — Test Result
-Ending: ${$("resultTitle").textContent}
-Age: ${state.age}
-Life options: ${lifeOptionsScore()}/100
-Bank trust: ${creditworthiness()}/100
+      const text = `Zambia: Road to Success — My Life Story
+${$("resultIcon").textContent} ${$("resultTitle").textContent} (age ${state.age})
+
+${buildYourStory()}
+
 Net worth: ${formatMoney(netWorth())}
-Cash: ${formatMoney(state.cash)}
-Debt: ${formatMoney(state.debt)}
-Unpaid bills: ${formatMoney(state.unpaidBills || 0)}
-Education: ${educationSummaryText(state)}
 Job: ${currentJob().name}
 Business: ${currentBusiness().name}
-Food/Housing: ${currentFoodPlan().name} / ${currentHousingPlan().name}
-Vehicle: ${currentVehicle().name}
-Land: ${state.landPlots} plot(s), ${formatMoney(landAssetValue())}
-Energy/Stress: ${state.energy}/${state.stress}
+Education: ${educationSummaryText(state)}
+Relationship: ${state.relationshipStatus === "married" ? `Married to ${state.partnerName}` : state.relationshipStatus === "cohabiting" ? `Living with ${state.partnerName}` : state.relationshipStatus === "dating" ? `Dating ${state.partnerName}` : "Single"}
+Achievements: ${persistentProgress.unlocked.length}/${achievementDefs.length}
 
-Feedback: Which choice felt most realistic? Was borrowing clear? Did the hustle feel too easy or too hard? What was confusing? Would you play again?`;
+Play your own version of the story: (add your game link here)`;
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text).then(() => toast("Result copied. Send it to the game creator.")).catch(() => fallbackCopy(text));
+        navigator.clipboard.writeText(text).then(() => toast("Your story is copied — paste it anywhere to share.")).catch(() => fallbackCopy(text));
       } else fallbackCopy(text);
     }
 
@@ -3237,6 +3347,21 @@ Feedback: Which choice felt most realistic? Was borrowing clear? Did the hustle 
     $("restartBtn").addEventListener("click", restartGame);
     $("playAgainBtn").addEventListener("click", restartGame);
     $("copyResultBtn").addEventListener("click", copyResult);
+    function renderAchievementsModal() {
+      $("achievementsList").innerHTML = achievementDefs.map(a => {
+        const unlocked = persistentProgress.unlocked.includes(a.id);
+        return `<div class="summary-row"><span>${unlocked ? a.icon : "🔒"} ${a.name}</span><strong>${unlocked ? "Unlocked" : a.desc}</strong></div>`;
+      }).join("");
+      $("endingsList").innerHTML = Object.keys(endingDefs).map(id => {
+        const end = endingDefs[id];
+        const seen = persistentProgress.endingsSeen.includes(id);
+        return `<div class="summary-row"><span>${seen ? end.icon : "🔒"} ${seen ? end.title : "???"}</span><strong>${seen ? "Discovered" : "Not yet found"}</strong></div>`;
+      }).join("");
+    }
+
+    $("achievementsBtn").addEventListener("click", () => { renderAchievementsModal(); $("achievementsModal").classList.add("open"); });
+    $("closeAchievementsBtn").addEventListener("click", () => $("achievementsModal").classList.remove("open"));
+    $("achievementsModal").addEventListener("click", e => { if (e.target === $("achievementsModal")) $("achievementsModal").classList.remove("open"); });
     $("helpBtn").addEventListener("click", () => $("helpModal").classList.add("open"));
     $("closeHelpBtn").addEventListener("click", () => $("helpModal").classList.remove("open"));
     $("helpModal").addEventListener("click", e => { if (e.target === $("helpModal")) $("helpModal").classList.remove("open"); });
